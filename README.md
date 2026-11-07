@@ -1,4 +1,14 @@
-# Discord Shield
+<p align="center">
+  <img src="src/app_logo.png" alt="Discord Shield" width="128" />
+</p>
+
+<h1 align="center">Discord Shield</h1>
+
+<p align="center">
+  Zero-Trust Dual-Layer DPI Evasion and Encrypted Tunnel for Discord
+</p>
+
+---
 
 Discord Shield is a lightweight, open-source Windows application engineered to restore reliable, low-latency connectivity to Discord across regions with stateful Deep Packet Inspection (DPI), DNS manipulation, and TLS Server Name Indication (SNI) censorship.
 
