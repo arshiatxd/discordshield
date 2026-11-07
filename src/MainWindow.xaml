@@ -1,0 +1,572 @@
+<Window x:Class="DiscordTunnel.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Discord Shield" Height="588" Width="348"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        Icon="app.ico"
+        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextRenderingMode="ClearType"
+        FontFamily="Segoe UI Variable Display, Segoe UI, -apple-system, Arial"
+        MouseDown="Window_MouseDown">
+
+    <Window.Resources>
+        <LinearGradientBrush x:Key="ShackleMetal" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#FFFFFF" Offset="0.0"/>
+            <GradientStop Color="#E2E8F0" Offset="0.22"/>
+            <GradientStop Color="#94A3B8" Offset="0.48"/>
+            <GradientStop Color="#F1F5F9" Offset="0.72"/>
+            <GradientStop Color="#64748B" Offset="1.0"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="PurpleLockBodyGradient" StartPoint="0,0" EndPoint="0.8,1">
+            <GradientStop Color="#818CF8" Offset="0.0"/>
+            <GradientStop Color="#5865F2" Offset="0.45"/>
+            <GradientStop Color="#3B429F" Offset="1.0"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="GreyLockBodyGradient" StartPoint="0,0" EndPoint="0.8,1">
+            <GradientStop Color="#4E5058" Offset="0.0"/>
+            <GradientStop Color="#313338" Offset="0.45"/>
+            <GradientStop Color="#232428" Offset="1.0"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="BevelHighlight" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#05FFFFFF" Offset="0.0"/>
+            <GradientStop Color="#66FFFFFF" Offset="0.5"/>
+            <GradientStop Color="#05FFFFFF" Offset="1.0"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="ButtonIdleGradient" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#5865F2" Offset="0.0"/>
+            <GradientStop Color="#4752C4" Offset="1.0"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="ButtonConnectedGradient" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#EF4444" Offset="0.0"/>
+            <GradientStop Color="#DC2626" Offset="0.55"/>
+            <GradientStop Color="#B91C1C" Offset="1.0"/>
+        </LinearGradientBrush>
+
+        <Style x:Key="DiscordPillButtonStyle" TargetType="Button">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="24" BorderBrush="#30FFFFFF" BorderThickness="1">
+                            <Grid>
+                                <Border Height="1.5" VerticalAlignment="Top" Margin="24,1,24,0" Background="{StaticResource BevelHighlight}" CornerRadius="1"/>
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,1"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.93"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="#66FFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.82"/>
+                                <Setter Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="0.96" ScaleY="0.96"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="border" Property="Opacity" Value="0.55"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="WindowCtrlBtn" TargetType="Button">
+            <Setter Property="Foreground" Value="#949BA4"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bg" Background="{TemplateBinding Background}" CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bg" Property="Background" Value="#35373C"/>
+                                <Setter Property="Foreground" Value="#F2F3F5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="CloseCtrlBtn" TargetType="Button" BasedOn="{StaticResource WindowCtrlBtn}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bg" Background="{TemplateBinding Background}" CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bg" Property="Background" Value="#DA373C"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DiscordToggleSwitchStyle" TargetType="CheckBox">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border x:Name="Track" Width="40" Height="22" CornerRadius="11" Background="#4E5058">
+                                <Canvas Width="40" Height="22">
+                                    <Border x:Name="Thumb" Width="16" Height="16" CornerRadius="8" Background="White" Canvas.Left="3" Canvas.Top="3">
+                                        <Border.Effect>
+                                            <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.35" Color="#000000"/>
+                                        </Border.Effect>
+                                    </Border>
+                                </Canvas>
+                            </Border>
+                            <ContentPresenter Margin="12,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Track" Property="Background" Value="#23A55A"/>
+                                <Setter TargetName="Thumb" Property="Canvas.Left" Value="21"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Track" Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <ControlTemplate x:Key="ComboBoxToggleButtonTemplate" TargetType="ToggleButton">
+            <Border x:Name="border" Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="16">
+                <Grid>
+                    <Path x:Name="Arrow" Data="M 0 0 L 4.5 4.5 L 9 0" Stroke="#949BA4" StrokeThickness="1.7"
+                          HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,14,0"
+                          RenderTransformOrigin="0.5,0.5">
+                        <Path.RenderTransform>
+                            <RotateTransform Angle="0"/>
+                        </Path.RenderTransform>
+                    </Path>
+                </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="border" Property="BorderBrush" Value="#5865F2"/>
+                    <Setter TargetName="border" Property="Background" Value="#2B2D31"/>
+                    <Setter TargetName="Arrow" Property="Stroke" Value="#FFFFFF"/>
+                </Trigger>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter TargetName="border" Property="BorderBrush" Value="#5865F2"/>
+                    <Setter TargetName="border" Property="Background" Value="#2B2D31"/>
+                    <Setter TargetName="Arrow" Property="RenderTransform">
+                        <Setter.Value>
+                            <RotateTransform Angle="180"/>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter TargetName="Arrow" Property="Stroke" Value="#5865F2"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <DataTemplate x:Key="RegionOptionTemplate">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Border Width="24" Height="16" CornerRadius="3" Margin="0,0,10,0" ClipToBounds="True" BorderBrush="#25FFFFFF" BorderThickness="0.5">
+                    <Grid>
+                        <Canvas x:Name="FlagTR" Visibility="Collapsed" Width="24" Height="16" Background="#E30A17">
+                            <Ellipse Canvas.Left="5" Canvas.Top="2.5" Width="11" Height="11" Fill="#FFFFFF"/>
+                            <Ellipse Canvas.Left="7.5" Canvas.Top="3.5" Width="9" Height="9" Fill="#E30A17"/>
+                            <Path Canvas.Left="13.5" Canvas.Top="5" Fill="#FFFFFF"
+                                  Data="M 3 0 L 3.8 2.5 L 6.5 2.5 L 4.3 4.1 L 5.2 6.5 L 3 5.0 L 0.8 6.5 L 1.7 4.1 L -0.5 2.5 L 2.2 2.5 Z"/>
+                        </Canvas>
+
+                        <Grid x:Name="FlagRU" Visibility="Collapsed">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Border Grid.Row="0" Background="#FFFFFF"/>
+                            <Border Grid.Row="1" Background="#0039A6"/>
+                            <Border Grid.Row="2" Background="#D52B1E"/>
+                        </Grid>
+
+                        <Grid x:Name="FlagIR" Visibility="Collapsed">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="1.15*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Border Grid.Row="0" Background="#239F40"/>
+                            <Border Grid.Row="1" Background="#FFFFFF">
+                                <Viewbox Width="11" Height="6" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform">
+                                    <Canvas Width="28" Height="16">
+                                        <Path Data="M 10,9 L 8,4 L 11,7 L 12.5,2.5 L 14,6.5 L 15.5,2.5 L 17,7 L 20,4 L 18,9 Z" Fill="#D97706"/>
+                                        <Ellipse Canvas.Left="9.5" Canvas.Top="4.5" Width="9" Height="9" Fill="#F59E0B"/>
+                                        <Path Data="M 6,14 L 6,10 L 8,8 L 17,8.5 L 19.5,6.5 L 21,8 L 20,11 L 20,14 L 18,14 L 18,11.5 L 9,11.5 L 9,14 Z" Fill="#B45309"/>
+                                        <Path Data="M 20,8 L 25,2.5 L 26,3.5 L 21,9 Z" Fill="#D97706"/>
+                                        <Path Data="M 6,10 C 3,9 3,6 5,5" Stroke="#B45309" StrokeThickness="1.4" Fill="Transparent"/>
+                                    </Canvas>
+                                </Viewbox>
+                            </Border>
+                            <Border Grid.Row="2" Background="#DA0000"/>
+                        </Grid>
+
+                        <Grid x:Name="FlagAE" Visibility="Collapsed">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="6.5"/>
+                                <ColumnDefinition Width="17.5"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Background="#FF0000"/>
+                            <Grid Grid.Column="1">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Border Grid.Row="0" Background="#00732F"/>
+                                <Border Grid.Row="1" Background="#FFFFFF"/>
+                                <Border Grid.Row="2" Background="#000000"/>
+                            </Grid>
+                        </Grid>
+
+                        <Grid x:Name="FlagGL" Visibility="Collapsed" Background="#35373C">
+                            <TextBlock Text="🌐" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <Grid x:Name="FlagAuto" Visibility="Collapsed" Background="#4F46E5">
+                            <TextBlock Text="⚡" FontSize="9.5" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#FEE75C"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+                <TextBlock Text="{Binding Name}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+            </StackPanel>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Code}" Value="TR">
+                    <Setter TargetName="FlagTR" Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Code}" Value="RU">
+                    <Setter TargetName="FlagRU" Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Code}" Value="IR">
+                    <Setter TargetName="FlagIR" Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Code}" Value="AE">
+                    <Setter TargetName="FlagAE" Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Code}" Value="GL">
+                    <Setter TargetName="FlagGL" Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Code}" Value="AUTO">
+                    <Setter TargetName="FlagAuto" Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+
+        <Style x:Key="DiscordComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Foreground" Value="#DBDEE1"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background" Value="#1E1F22"/>
+            <Setter Property="BorderBrush" Value="#3F4147"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,6,32,6"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton Name="ToggleButton"
+                                          Template="{StaticResource ComboBoxToggleButtonTemplate}"
+                                          Background="{TemplateBinding Background}"
+                                          BorderBrush="{TemplateBinding BorderBrush}"
+                                          BorderThickness="{TemplateBinding BorderThickness}"
+                                          Focusable="False"
+                                          IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                          ClickMode="Press"/>
+                            <ContentPresenter Name="ContentSite"
+                                              IsHitTestVisible="False"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                              Margin="{TemplateBinding Padding}"
+                                              VerticalAlignment="Center"
+                                              HorizontalAlignment="Left"/>
+                            <Popup x:Name="PART_Popup" AllowsTransparency="True" IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   Placement="Bottom" PopupAnimation="Fade" Focusable="False">
+                                <Border x:Name="dropDownBorder" Background="#1E1F22" BorderBrush="#4E5058" BorderThickness="1"
+                                        CornerRadius="14" Margin="0,4,0,0" MinWidth="{TemplateBinding ActualWidth}">
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="18" ShadowDepth="5" Opacity="0.55" Color="#000000"/>
+                                    </Border.Effect>
+                                    <ScrollViewer Margin="4,4" SnapsToDevicePixels="True" MaxHeight="220">
+                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle"/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.65"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="#DBDEE1"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="10,7"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="itemBorder" Background="{TemplateBinding Background}" CornerRadius="8" Margin="2,1">
+                            <ContentPresenter Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="itemBorder" Property="Background" Value="#313338"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="itemBorder" Property="Background" Value="#5865F2"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Background="Transparent">
+        <Border x:Name="WindowFrame" Margin="0" CornerRadius="42" BorderBrush="#35373C" BorderThickness="1.5">
+            <Grid x:Name="RootContainer">
+                <Border x:Name="GreyBackground" CornerRadius="40.5" Opacity="1">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#2B2D31" Offset="0.0"/>
+                            <GradientStop Color="#1E1F22" Offset="0.45"/>
+                            <GradientStop Color="#141518" Offset="0.80"/>
+                            <GradientStop Color="#0E0F12" Offset="1.0"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                </Border>
+
+                <Border x:Name="PurpleBackground" CornerRadius="40.5" Opacity="0">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#3B429F" Offset="0.0"/>
+                            <GradientStop Color="#4F46E5" Offset="0.35"/>
+                            <GradientStop Color="#5865F2" Offset="0.70"/>
+                            <GradientStop Color="#312E81" Offset="1.0"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                </Border>
+
+                <Border CornerRadius="40.5" IsHitTestVisible="False">
+                    <Border.Background>
+                        <RadialGradientBrush Center="0.5,0.22" GradientOrigin="0.5,0.22" RadiusX="0.65" RadiusY="0.45">
+                            <GradientStop Color="#1E5865F2" Offset="0.0"/>
+                            <GradientStop Color="#005865F2" Offset="1.0"/>
+                        </RadialGradientBrush>
+                    </Border.Background>
+                </Border>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="52"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="64"/>
+                        <RowDefinition Height="36"/>
+                        <RowDefinition Height="64"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Background="Transparent" Margin="6,0,6,0">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="18,0,0,0">
+                            <Image Source="app_logo.png" Width="22" Height="22" Margin="0,0,10,0" RenderOptions.BitmapScalingMode="HighQuality"/>
+                            <TextBlock Text="Discord Shield" Foreground="#F2F3F5" FontSize="13.5" FontWeight="Bold" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,14,0">
+                            <Border x:Name="PingBadge" Visibility="Collapsed" Background="#2623A55A" BorderBrush="#23A55A" BorderThickness="1" CornerRadius="10" Padding="8,3" Margin="0,0,10,0" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Ellipse x:Name="PingDot" Width="6" Height="6" Fill="#23A55A" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="PingBadgeText" Text="-- ms" Foreground="#4ADE80" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Button Style="{StaticResource WindowCtrlBtn}" Click="MinimizeBtn_Click" Content="─" Margin="0,0,4,0"/>
+                            <Button Style="{StaticResource CloseCtrlBtn}" Click="CloseBtn_Click" Content="✕"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Grid Width="240" Height="190" HorizontalAlignment="Center" Margin="0,-6,0,-4">
+                            <Ellipse x:Name="LockGlow" Width="240" Height="240" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                     Opacity="0" RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False">
+                                <Ellipse.RenderTransform>
+                                    <ScaleTransform x:Name="LockGlowScale" ScaleX="1" ScaleY="1"/>
+                                </Ellipse.RenderTransform>
+                                <Ellipse.Fill>
+                                    <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+                                        <GradientStop Color="#77818CF8" Offset="0.0"/>
+                                        <GradientStop Color="#386366F1" Offset="0.45"/>
+                                        <GradientStop Color="#006366F1" Offset="1.0"/>
+                                    </RadialGradientBrush>
+                                </Ellipse.Fill>
+                            </Ellipse>
+
+                            <Viewbox x:Name="LockAssemblyViewbox" Width="175" Height="175" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.55">
+                                <Viewbox.RenderTransform>
+                                    <ScaleTransform x:Name="LockBodyScale" ScaleX="1" ScaleY="1"/>
+                                </Viewbox.RenderTransform>
+                                <Canvas Width="512" Height="512">
+                                    <Canvas x:Name="ShackleGroup">
+                                        <Canvas.RenderTransform>
+                                            <TransformGroup>
+                                                <TranslateTransform x:Name="ShackleTranslate" X="0" Y="0"/>
+                                                <RotateTransform x:Name="ShackleRotate" Angle="0" CenterX="352" CenterY="245"/>
+                                            </TransformGroup>
+                                        </Canvas.RenderTransform>
+
+                                        <Path Data="M 160 245 L 160 135 C 160 55, 352 55, 352 135 L 352 245"
+                                              Fill="{x:Null}"
+                                              Stroke="{StaticResource ShackleMetal}"
+                                              StrokeThickness="38"
+                                              StrokeStartLineCap="Round"
+                                              StrokeEndLineCap="Round"
+                                              StrokeLineJoin="Round">
+                                            <Path.Effect>
+                                                <DropShadowEffect BlurRadius="14" ShadowDepth="6" Color="#000000" Opacity="0.40"/>
+                                            </Path.Effect>
+                                        </Path>
+
+                                        <Path Data="M 168 245 L 168 135 C 168 67, 344 67, 344 135 L 344 245"
+                                              Fill="{x:Null}"
+                                              Stroke="#FFFFFF"
+                                              StrokeThickness="8"
+                                              StrokeStartLineCap="Round"
+                                              Opacity="0.72"/>
+
+                                        <Rectangle Canvas.Left="145" Canvas.Top="228" Width="22" Height="6" RadiusX="2" RadiusY="2" Fill="#475569"/>
+                                    </Canvas>
+
+                                    <Ellipse Canvas.Left="140" Canvas.Top="227" Width="40" Height="16" Fill="#141518" Opacity="0.92"/>
+                                    <Ellipse Canvas.Left="332" Canvas.Top="227" Width="40" Height="16" Fill="#141518" Opacity="0.92"/>
+
+                                    <Border x:Name="LockBodyBorder" Canvas.Left="106" Canvas.Top="215" Width="300" Height="240"
+                                            CornerRadius="46" Background="{StaticResource GreyLockBodyGradient}"
+                                            BorderBrush="#4E5058" BorderThickness="1.8">
+                                        <Border.Effect>
+                                            <DropShadowEffect BlurRadius="26" ShadowDepth="9" Color="#000000" Opacity="0.48"/>
+                                        </Border.Effect>
+
+                                        <Grid>
+                                            <Border Height="3" VerticalAlignment="Top" Margin="28,2,28,0" Background="{StaticResource BevelHighlight}" CornerRadius="1.5"/>
+
+                                            <Viewbox Width="150" Height="110" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,10" RenderTransformOrigin="0.5,0.5">
+                                                <Viewbox.RenderTransform>
+                                                    <ScaleTransform x:Name="LogoEmblemScale" ScaleX="1" ScaleY="1"/>
+                                                </Viewbox.RenderTransform>
+                                                <Path Fill="#FFFFFF"
+                                                      Data="M19.3 4.3C17.8 3.6 16.3 3.1 14.7 2.8C14.5 3.2 14.3 3.7 14.1 4.1C12.4 3.8 10.7 3.8 9 4.1C8.8 3.7 8.6 3.2 8.4 2.8C6.8 3.1 5.3 3.6 3.8 4.3C0.9 8.7 0.1 13 0.5 17.2C2.4 18.6 4.3 19.5 6.1 20C6.6 19.4 7 18.7 7.3 18C6.6 17.7 6 17.4 5.4 17C5.6 16.9 5.7 16.7 5.9 16.6C9.5 18.2 13.6 18.2 17.1 16.6C17.3 16.8 17.4 16.9 17.6 17C17 17.4 16.4 17.7 15.7 18C16.1 18.7 16.5 19.4 16.9 20C18.8 19.5 20.7 18.6 22.6 17.2C23.1 12.3 21.8 8 19.3 4.3ZM7.9 14.6C6.8 14.6 5.9 13.6 5.9 12.4C5.9 11.2 6.8 10.2 7.9 10.2C9 10.2 9.9 11.2 9.9 12.4C9.9 13.6 9 14.6 7.9 14.6ZM15.2 14.6C14.1 14.6 13.2 13.6 13.2 12.4C13.2 11.2 14.1 10.2 15.2 10.2C16.3 10.2 17.2 11.2 17.2 12.4C17.2 13.6 16.3 14.6 15.2 14.6Z">
+                                                    <Path.Effect>
+                                                        <DropShadowEffect BlurRadius="10" ShadowDepth="3" Color="#000000" Opacity="0.35"/>
+                                                    </Path.Effect>
+                                                </Path>
+                                            </Viewbox>
+
+                                            <Canvas HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,16" Width="12" Height="16">
+                                                <Ellipse x:Name="KeyholeTop" Width="8" Height="8" Canvas.Left="2" Fill="#232428" Opacity="0.85"/>
+                                                <Path x:Name="KeyholeBottom" Data="M 3 5 L 9 5 L 7 14 L 5 14 Z" Fill="#232428" Opacity="0.85"/>
+                                            </Canvas>
+                                        </Grid>
+                                    </Border>
+                                </Canvas>
+                            </Viewbox>
+                        </Grid>
+
+                        <TextBlock x:Name="StatusLabel" Text="DISCONNECTED" Foreground="#F2F3F5" FontSize="18.5" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                        <TextBlock x:Name="StatusSubLabel" Text="Discord traffic is direct" Foreground="#949BA4" FontSize="12" HorizontalAlignment="Center" Margin="0,3,0,0"/>
+
+                        <ComboBox x:Name="RegionCombo" Style="{StaticResource DiscordComboBoxStyle}"
+                                  ItemTemplate="{StaticResource RegionOptionTemplate}"
+                                  Width="264" Height="38" Margin="0,10,0,0"
+                                  MaxDropDownHeight="240"
+                                  SelectionChanged="RegionCombo_SelectionChanged"/>
+
+                        <Border x:Name="SecurityPill" Visibility="Collapsed" Background="#33000000" BorderBrush="#28FFFFFF" BorderThickness="1" CornerRadius="12" Padding="12,4" Margin="0,8,0,0" HorizontalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock x:Name="SecurityPillIcon" Text="🛡️" FontSize="10" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="SecurityPillText" Text="DoH Encrypted • Zero-Trust Tunnel" Foreground="#E3E5E8" FontSize="11" FontWeight="Medium" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <Grid Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Button x:Name="ConnectBtn" Style="{StaticResource DiscordPillButtonStyle}" Click="ConnectBtn_Click"
+                                Width="236" Height="48" Content="Connect" Background="{StaticResource ButtonIdleGradient}">
+                            <Button.Effect>
+                                <DropShadowEffect x:Name="BtnShadow" BlurRadius="22" ShadowDepth="4" Opacity="0.45" Color="#5865F2"/>
+                            </Button.Effect>
+                        </Button>
+                    </Grid>
+
+                    <Grid Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="24,0,24,2">
+                        <TextBlock Text="Starting Discord may take a few tries to connect. Please retry if connection fails initially."
+                                   Foreground="#8E9297" FontSize="10.5" TextWrapping="Wrap" TextAlignment="Center" LineHeight="14"/>
+                    </Grid>
+
+                    <Grid Grid.Row="4" Margin="24,0,24,14" VerticalAlignment="Center">
+                        <Border Background="#18191C" CornerRadius="20" Padding="16,10" BorderBrush="#2B2D31" BorderThickness="1">
+                            <Grid>
+                                <CheckBox x:Name="MinimizeToTrayCheckBox" Style="{StaticResource DiscordToggleSwitchStyle}" IsChecked="True" VerticalAlignment="Center">
+                                    <TextBlock Text="Minimize to system tray" Foreground="#DBDEE1" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                </CheckBox>
+                                <TextBlock Text="v1.0" Foreground="#80848E" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
