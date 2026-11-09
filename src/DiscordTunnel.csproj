@@ -20,6 +20,7 @@
   <ItemGroup>
     <Resource Include="app_logo.png" />
     <Resource Include="app.ico" />
+    <Resource Include="flag_ir.png" />
     <EmbeddedResource Include="Core\**\*" />
     <None Update="Core\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

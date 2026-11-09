@@ -85,9 +85,20 @@ Discord Shield includes tailored desynchronization profiles optimized for the in
 
 ---
 
-## Installation
+## Prerequisites & Installation
 
-Download and execute `Discord Shield Setup.exe` from the latest release to install the application. Administrator privileges are required to configure the local network filter driver and system DNS templates.
+- **Runtime Requirement:** Discord Shield requires the official Microsoft .NET 10 Desktop Runtime (x64). If not already installed, download it directly from Microsoft:
+  - Official Microsoft Portal: [https://dotnet.microsoft.com/en-us/download/dotnet/10.0](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
+
+- **Installation:** Download and execute `Discord Shield Setup.exe` from the latest release to install the application. Administrator privileges are required to configure the local network filter driver and system DNS templates.
+
+---
+
+## Security, Privacy & Antivirus False Positives
+
+- **Zero Data Collection:** Discord Shield runs 100% locally on your device. Discord traffic flows directly between your computer and Discord's servers without passing through external proxy servers or collecting analytics.
+- **Antivirus False Positives:** Security software (such as Windows Defender or SmartScreen) may flag newly built circumvention utilities because they interact with raw network packets via the `WinDivert` kernel driver and local loopback proxying. This is a known false positive common to network packet desynchronization tools (like GoodbyeDPI and ByeDPI).
+- **Whitelisting:** You can add a Windows Defender exclusion with one click directly from the application's top-right options menu (`...`) or during setup.
 
 ---
 

@@ -49,16 +49,16 @@ namespace DiscordTunnel
             new RegionOption
             {
                 Code = "AUTO",
-                Name = "Auto-Detect (Smart Route)",
+                Name = "Auto-Detect",
                 ShortName = "Auto Route",
-                Description = "Multi-Profile Auto Verification",
+                Description = "Multi-Profile Smart DPI Bypass",
                 Arguments = string.Empty,
                 ProxyArguments = "--oob 1 --tlsrec 1+s --auto=torst,ssl_err -s 1 -d 3+s --ttl 5 --fake -1+s --fake-sni www.cloudflare.com -M h,d -a 2 -p 1080"
             },
             new RegionOption
             {
                 Code = "IR",
-                Name = "Iran (MCI, Irancell, Shatel, Zitel, etc.)",
+                Name = "Iran",
                 ShortName = "Iran",
                 Description = "Stateful DPI & Multi-ISP Desync Shield",
                 Arguments = "-9 --fake-gen 10 --wrong-seq --wrong-chksum -q --dns-addr 77.88.8.8 --dns-port 1253 --dnsv6-addr 2a02:6b8::feed:0ff --dnsv6-port 1253 --blacklist discord-list.txt",
@@ -67,7 +67,7 @@ namespace DiscordTunnel
             new RegionOption
             {
                 Code = "TR",
-                Name = "Turkey (BTK / Turk Telekom)",
+                Name = "Turkey",
                 ShortName = "Turkey",
                 Description = "TLS Record Split & SNI Desync Tunnel",
                 Arguments = "-5 --set-ttl 5 --dns-addr 77.88.8.8 --dns-port 1253 --dnsv6-addr 2a02:6b8::feed:0ff --dnsv6-port 1253",
@@ -76,7 +76,7 @@ namespace DiscordTunnel
             new RegionOption
             {
                 Code = "RU",
-                Name = "Russia (RKN TSPU Bypass)",
+                Name = "Russia",
                 ShortName = "Russia",
                 Description = "Dynamic TTL Shielding & TLS Record Split",
                 Arguments = "-9 --auto-ttl 1-4-10 -q --dns-addr 77.88.8.8 --dns-port 1253 --dnsv6-addr 2a02:6b8::feed:0ff --dnsv6-port 1253 --blacklist discord-list.txt",
@@ -85,7 +85,7 @@ namespace DiscordTunnel
             new RegionOption
             {
                 Code = "AE",
-                Name = "UAE / Middle East (DPI Bypass)",
+                Name = "UAE / Middle East",
                 ShortName = "UAE / Middle East",
                 Description = "VoIP & WebRTC Desync Shield Tunnel",
                 Arguments = "-7 -q --dns-addr 77.88.8.8 --dns-port 1253 --blacklist discord-list.txt",
@@ -94,7 +94,7 @@ namespace DiscordTunnel
             new RegionOption
             {
                 Code = "GL",
-                Name = "Global / Other Countries",
+                Name = "Global / Other",
                 ShortName = "Global",
                 Description = "Deep Packet Splitting & Shield Tunnel",
                 Arguments = "-5 -q --auto-ttl 1-4-10 --dns-addr 77.88.8.8 --dns-port 1253 --blacklist discord-list.txt",
@@ -418,6 +418,88 @@ namespace DiscordTunnel
             {
                 WindowState = WindowState.Minimized;
             }
+        }
+
+        private void MenuBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (MenuBtn.ContextMenu != null)
+            {
+                MenuBtn.ContextMenu.PlacementTarget = MenuBtn;
+                MenuBtn.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+                MenuBtn.ContextMenu.IsOpen = true;
+            }
+        }
+
+        private void PrivacyPolicy_Click(object sender, RoutedEventArgs e)
+        {
+            PrivacyOverlay.Visibility = Visibility.Visible;
+        }
+
+        private void ClosePrivacyPolicy_Click(object sender, RoutedEventArgs e)
+        {
+            PrivacyOverlay.Visibility = Visibility.Collapsed;
+        }
+
+        private void AddDefenderExclusion_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string appDir = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
+                string localApp = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DiscordTunnel");
+                string psCommand = $"Add-MpPreference -ExclusionPath '{appDir}', '{localApp}' -ExclusionProcess 'DiscordTunnel.exe', 'DiscordShieldEngine.exe', 'ciadpi.exe'";
+
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = "powershell.exe",
+                    Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{psCommand}\"",
+                    Verb = "runas",
+                    CreateNoWindow = true,
+                    UseShellExecute = true
+                };
+
+                using var proc = Process.Start(startInfo);
+                proc?.WaitForExit(3000);
+
+                MessageBox.Show(
+                    "Discord Shield directory and processes have been added to Windows Defender exclusions.\n\nFalse positive antivirus alerts will no longer occur.",
+                    "Defender Exclusion Added",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Could not add Defender exclusion automatically:\n{ex.Message}\n\nYou can manually add the installation directory to Windows Security exclusions.",
+                    "Exclusion Notice",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+            }
+        }
+
+        private void DotNetDownload_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "https://dotnet.microsoft.com/en-us/download/dotnet/10.0",
+                    UseShellExecute = true
+                });
+            }
+            catch { }
+        }
+
+        private void GitHubLink_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "https://github.com/arshiatxd/discordshield",
+                    UseShellExecute = true
+                });
+            }
+            catch { }
         }
 
         private void CloseBtn_Click(object sender, RoutedEventArgs e)

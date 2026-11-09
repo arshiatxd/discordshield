@@ -223,86 +223,7 @@
                         </Grid>
 
                         <Grid x:Name="FlagIR" Visibility="Collapsed">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="1.2*"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            <Border Grid.Row="0" Background="#239F40"/>
-                            <Border Grid.Row="1" Background="#FFFFFF">
-                                <Viewbox Width="13" Height="5.6" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Canvas Width="120" Height="70">
-                                        <Path Fill="#F59E0B" Data="
-                                            M 56,32 L 20,29 L 55,30 Z
-                                            M 56,32 L 23,22 L 54,28 Z
-                                            M 56,32 L 28,15 L 53,26 Z
-                                            M 56,32 L 35,9 L 52,24 Z
-                                            M 56,32 L 43,5 L 53,23 Z
-                                            M 56,32 L 51,2 L 55,22 Z
-                                            M 56,32 L 59,1 L 58,22 Z
-                                            M 56,32 L 67,3 L 60,23 Z
-                                            M 56,32 L 75,7 L 62,24 Z
-                                            M 56,32 L 82,13 L 64,26 Z
-                                            M 56,32 L 87,20 L 65,28 Z
-                                            M 56,32 L 90,27 L 66,30 Z
-                                        "/>
-                                        <Path Fill="#FBBF24" Data="
-                                            M 56,32 L 21,25 L 54,29 Z
-                                            M 56,32 L 25,18 L 53,27 Z
-                                            M 56,32 L 31,11 L 52,25 Z
-                                            M 56,32 L 39,6 L 53,23 Z
-                                            M 56,32 L 47,3 L 54,22 Z
-                                            M 56,32 L 55,1.5 L 57,22 Z
-                                            M 56,32 L 63,2 L 59,22 Z
-                                            M 56,32 L 71,5 L 61,23 Z
-                                            M 56,32 L 79,10 L 63,25 Z
-                                            M 56,32 L 85,16 L 64,27 Z
-                                            M 56,32 L 89,23 L 65,29 Z
-                                        "/>
-                                        <Ellipse Canvas.Left="46" Canvas.Top="22" Width="20" Height="20" Fill="#FBBF24"/>
-                                        <Ellipse Canvas.Left="48" Canvas.Top="24" Width="16" Height="16" Fill="#F59E0B"/>
-                                        <Path Fill="#E2E8F0" Stroke="#64748B" StrokeThickness="0.8"
-                                              Data="M 33,21 C 28,10 32,2 41,-1 C 36,5 34,13 36,20 Z"/>
-                                        <Path Fill="#FDE047" Data="M 34,19 C 32,12 35,4 40,0 C 37,5 35,13 35.5,19 Z"/>
-                                        <Path Fill="#B45309" Data="M 31,19.5 L 37,19 L 36.5,21 L 30.5,21.5 Z"/>
-                                        <Path Stroke="#B45309" StrokeThickness="3" Fill="Transparent"
-                                              StrokeStartLineCap="Round" StrokeEndLineCap="Round"
-                                              Data="M 72,36 C 81,35 85,25 82,16 C 79,9 70,10 66,15"/>
-                                        <Path Fill="#D97706" Data="M 66,15 C 62,12 61,18 65,20 C 69,19 70,16 66,15 Z"/>
-                                        <Path Fill="#D97706" Data="
-                                            M 44,30
-                                            C 48,29 57,31 62,33
-                                            C 68,34 72,33 74,36
-                                            C 76,42 74,48 72,52 L 74,58 L 70,58 L 68,52
-                                            C 64,48 62,45 57,45
-                                            C 52,45 49,47 48,52 L 49,58 L 45,58 L 44,52
-                                            C 42,47 41,41 44,30 Z"/>
-                                        <Path Fill="#B45309" Data="M 65,40 C 63,47 60,53 58,58 L 62,58 C 64,53 67,47 69,42 Z"/>
-                                        <Path Fill="#D97706" Data="M 43,35 C 40,31 36,26 35,22 C 34,21 32,22 33,24 C 34,27 37,33 42,39 Z"/>
-                                        <Ellipse Canvas.Left="32" Canvas.Top="20" Width="4.5" Height="3.5" Fill="#B45309"/>
-                                        <Path Fill="#B45309" Data="M 44,40 C 43,46 42,52 42,58 L 46,58 C 46,52 47,46 48,40 Z"/>
-                                        <Path Fill="#B45309" Data="
-                                            M 42,30
-                                            C 40,26 41,22 39,19
-                                            C 37,17 34,18 33,21
-                                            C 31,18 29,19 29,22
-                                            C 28,24 29,26 31,27
-                                            C 29,29 30,32 32,34
-                                            C 34,36 37,38 41,39
-                                            C 44,40 46,38 45,34
-                                            C 45,31 43,31 42,30 Z"/>
-                                        <Path Fill="#D97706" Data="
-                                            M 34,21
-                                            C 33,18 31,19 30,21
-                                            C 28,21 27,23 28,25
-                                            C 29,26 31,26 32,27
-                                            C 33,28 35,27 35,24 Z"/>
-                                        <Path Fill="#EF4444" Data="M 28.5,23.5 L 27.5,24.5 L 29,25 Z"/>
-                                        <Path Fill="#16A34A" Data="M 22,59 C 45,56 75,56 98,59 C 75,61 45,61 22,59 Z"/>
-                                    </Canvas>
-                                </Viewbox>
-                            </Border>
-                            <Border Grid.Row="2" Background="#DA0000"/>
+                            <Image Source="pack://application:,,,/flag_ir.png" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Fill"/>
                         </Grid>
 
                         <Grid x:Name="FlagAE" Visibility="Collapsed">
@@ -507,6 +428,24 @@
                                 </StackPanel>
                             </Border>
 
+                            <Button x:Name="MenuBtn" Style="{StaticResource WindowCtrlBtn}" Click="MenuBtn_Click" Margin="0,0,4,0" ToolTip="Options &amp; Privacy Policy">
+                                <Viewbox Width="12" Height="12" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Canvas Width="16" Height="16">
+                                        <Ellipse Canvas.Left="6.5" Canvas.Top="2" Width="3" Height="3" Fill="#949BA4"/>
+                                        <Ellipse Canvas.Left="6.5" Canvas.Top="6.5" Width="3" Height="3" Fill="#949BA4"/>
+                                        <Ellipse Canvas.Left="6.5" Canvas.Top="11" Width="3" Height="3" Fill="#949BA4"/>
+                                    </Canvas>
+                                </Viewbox>
+                                <Button.ContextMenu>
+                                    <ContextMenu Background="#1E1F22" BorderBrush="#3F4147" BorderThickness="1">
+                                        <MenuItem Header="Privacy Policy &amp; Safety" Click="PrivacyPolicy_Click" Foreground="#F2F3F5" FontWeight="SemiBold"/>
+                                        <MenuItem Header="Add Windows Defender Exclusion" Click="AddDefenderExclusion_Click" Foreground="#F2F3F5"/>
+                                        <Separator Background="#2B2D31"/>
+                                        <MenuItem Header="Official .NET 10 Runtime Download" Click="DotNetDownload_Click" Foreground="#F2F3F5"/>
+                                        <MenuItem Header="GitHub Source Code" Click="GitHubLink_Click" Foreground="#F2F3F5"/>
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+                            </Button>
                             <Button Style="{StaticResource WindowCtrlBtn}" Click="MinimizeBtn_Click" Content="─" Margin="0,0,4,0"/>
                             <Button Style="{StaticResource CloseCtrlBtn}" Click="CloseBtn_Click" Content="✕"/>
                         </StackPanel>
@@ -609,7 +548,11 @@
 
                         <Border x:Name="SecurityPill" Visibility="Collapsed" Background="#33000000" BorderBrush="#28FFFFFF" BorderThickness="1" CornerRadius="12" Padding="12,4" Margin="0,8,0,0" HorizontalAlignment="Center">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock x:Name="SecurityPillIcon" Text="🛡️" FontSize="10" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                <Viewbox Width="11" Height="11" Margin="0,0,6,0" VerticalAlignment="Center">
+                                    <Canvas Width="16" Height="16">
+                                        <Path Data="M 8,1.5 L 14,4 L 14,8.5 C 14,12 11,14.5 8,15.5 C 5,14.5 2,12 2,8.5 L 2,4 Z" Fill="#5865F2"/>
+                                    </Canvas>
+                                </Viewbox>
                                 <TextBlock x:Name="SecurityPillText" Text="DoH Encrypted • Zero-Trust Tunnel" Foreground="#E3E5E8" FontSize="11" FontWeight="Medium" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Border>
@@ -639,6 +582,79 @@
                             </Grid>
                         </Border>
                     </Grid>
+                </Grid>
+
+                <Grid x:Name="PrivacyOverlay" Visibility="Collapsed" Background="#F2111214">
+                    <Border Width="360" MaxHeight="520" Background="#1E1F22" BorderBrush="#3F4147" BorderThickness="1" CornerRadius="24" Padding="22,20">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="30" ShadowDepth="8" Opacity="0.7" Color="#000000"/>
+                        </Border.Effect>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Margin="0,0,0,14">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,4">
+                                    <Viewbox Width="20" Height="20" Margin="0,0,8,0" VerticalAlignment="Center">
+                                        <Canvas Width="16" Height="16">
+                                            <Path Data="M 8,1 L 14.5,3.8 L 14.5,8 C 14.5,12 11,14.7 8,15.8 C 5,14.7 1.5,12 1.5,8 L 1.5,3.8 Z" Fill="#5865F2"/>
+                                            <Path Data="M 6.5,8 L 7.5,9.5 L 10.5,5.5" Stroke="#FFFFFF" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                        </Canvas>
+                                    </Viewbox>
+                                    <TextBlock Text="Privacy Policy &amp; Safety" Foreground="#F2F3F5" FontSize="16" FontWeight="Bold" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <Border Background="#2623A55A" BorderBrush="#23A55A" BorderThickness="0.8" CornerRadius="8" Padding="8,3" HorizontalAlignment="Center">
+                                    <TextBlock Text="Zero Data Collection • 100% Local Engine" Foreground="#4ADE80" FontSize="10.5" FontWeight="SemiBold"/>
+                                </Border>
+                            </StackPanel>
+
+                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,0,0,14" SnapsToDevicePixels="True">
+                                <StackPanel>
+                                    <Border Background="#2B2D31" CornerRadius="12" Padding="12,10" Margin="0,0,0,10">
+                                        <StackPanel>
+                                            <TextBlock Text="Zero Telemetry &amp; Absolute Privacy" Foreground="#F2F3F5" FontSize="12" FontWeight="Bold" Margin="0,0,0,4"/>
+                                            <TextBlock Text="Discord Shield runs entirely on your local machine. It does not route user data through external proxy servers, does not log web requests, and contains zero remote analytics, tracking, or telemetry."
+                                                       Foreground="#B5BAC1" FontSize="11" TextWrapping="Wrap" LineHeight="15"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Background="#2B2D31" CornerRadius="12" Padding="12,10" Margin="0,0,0,10">
+                                        <StackPanel>
+                                            <TextBlock Text="Why Antivirus May Alert (False Positive)" Foreground="#FEE75C" FontSize="12" FontWeight="Bold" Margin="0,0,0,4"/>
+                                            <TextBlock Text="Windows Defender or third-party security software may flag this application because it uses a low-level network packet filter driver (WinDivert) and local loopback proxying. These components are used strictly to segment and desynchronize TLS handshakes to circumvent ISP censorship, not to perform malicious operations."
+                                                       Foreground="#B5BAC1" FontSize="11" TextWrapping="Wrap" LineHeight="15"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Background="#2B2D31" CornerRadius="12" Padding="12,10" Margin="0,0,0,10">
+                                        <StackPanel>
+                                            <TextBlock Text="Open Source &amp; Auditable" Foreground="#5865F2" FontSize="12" FontWeight="Bold" Margin="0,0,0,4"/>
+                                            <TextBlock Text="Every line of source code, build scripts, and installer definitions are public and auditable on GitHub. You can inspect the entire repository at github.com/arshiatxd/discordshield."
+                                                       Foreground="#B5BAC1" FontSize="11" TextWrapping="Wrap" LineHeight="15"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Background="#2B2D31" CornerRadius="12" Padding="12,10">
+                                        <StackPanel>
+                                            <TextBlock Text="Official .NET Runtime Notice" Foreground="#F2F3F5" FontSize="12" FontWeight="Bold" Margin="0,0,0,4"/>
+                                            <TextBlock Text="Always download the .NET 10 Desktop Runtime directly from Microsoft's official portal (dotnet.microsoft.com). Avoid unofficial third-party mirrors."
+                                                       Foreground="#B5BAC1" FontSize="11" TextWrapping="Wrap" LineHeight="15"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </ScrollViewer>
+
+                            <StackPanel Grid.Row="2">
+                                <Button Click="AddDefenderExclusion_Click" Style="{StaticResource DiscordPillButtonStyle}" Height="34" Margin="0,0,0,8"
+                                        Content="Add Windows Defender Exclusion" Background="#35373C" FontSize="11.5"/>
+                                <Button Click="ClosePrivacyPolicy_Click" Style="{StaticResource DiscordPillButtonStyle}" Height="36"
+                                        Content="Close" Background="{StaticResource ButtonIdleGradient}" FontSize="12"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                 </Grid>
             </Grid>
         </Border>
