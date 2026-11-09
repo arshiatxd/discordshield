@@ -49,20 +49,20 @@ namespace DiscordTunnel
             new RegionOption
             {
                 Code = "AUTO",
-                Name = "Auto-Detect",
+                Name = "Auto (Smart Route)",
                 ShortName = "Auto Route",
-                Description = "Multi-Profile Smart DPI Bypass",
+                Description = "Multi-Profile Auto Verification",
                 Arguments = string.Empty,
-                ProxyArguments = "--oob 1 --tlsrec 1+s --auto=torst,ssl_err -s 1 -d 3+s --ttl 5 --fake -1+s --fake-sni www.cloudflare.com -M h,d -a 2 -p 1080"
+                ProxyArguments = "--split 1 --disorder 3+s --mod-http=h,d --auto=torst --tlsrec 1+s -p 1080"
             },
             new RegionOption
             {
                 Code = "IR",
                 Name = "Iran",
                 ShortName = "Iran",
-                Description = "Stateful DPI & Multi-ISP Desync Shield",
-                Arguments = "-9 --fake-gen 10 --wrong-seq --wrong-chksum -q --dns-addr 77.88.8.8 --dns-port 1253 --dnsv6-addr 2a02:6b8::feed:0ff --dnsv6-port 1253 --blacklist discord-list.txt",
-                ProxyArguments = "--oob 1 --tlsrec 1+s --auto=torst,ssl_err -s 1 -d 3+s --ttl 5 --fake -1+s --fake-sni www.cloudflare.com -M h,d -a 2 -p 1080"
+                Description = "OOB Desync • Fake SNI & TLS Record Split",
+                Arguments = "-9 --fake-gen 15 --auto-ttl 1-4-10 -q --dns-addr 77.88.8.8 --dns-port 1253 --dnsv6-addr 2a02:6b8::feed:0ff --dnsv6-port 1253 --blacklist discord-list.txt",
+                ProxyArguments = "--oob 1 --tlsrec 1+s --auto=torst,ssl_err,redirect -s 1 -d 3+s --ttl 4 --fake -1+s --fake-sni www.google.com -M h,d,r -p 1080"
             },
             new RegionOption
             {
@@ -88,13 +88,13 @@ namespace DiscordTunnel
                 Name = "UAE / Middle East",
                 ShortName = "UAE / Middle East",
                 Description = "VoIP & WebRTC Desync Shield Tunnel",
-                Arguments = "-7 -q --dns-addr 77.88.8.8 --dns-port 1253 --blacklist discord-list.txt",
-                ProxyArguments = "--split 1 --disorder 3+s --mod-http=h,d --auto=torst --tlsrec 1+s -p 1080"
+                Arguments = "-7 -q --auto-ttl 1-4-10 --dns-addr 77.88.8.8 --dns-port 1253 --blacklist discord-list.txt",
+                ProxyArguments = "--split 1+s --disorder 3+s --mod-http=h,d --auto=torst,ssl_err --tlsrec 1+s -p 1080"
             },
             new RegionOption
             {
                 Code = "GL",
-                Name = "Global / Other",
+                Name = "Global",
                 ShortName = "Global",
                 Description = "Deep Packet Splitting & Shield Tunnel",
                 Arguments = "-5 -q --auto-ttl 1-4-10 --dns-addr 77.88.8.8 --dns-port 1253 --blacklist discord-list.txt",
@@ -115,6 +115,7 @@ namespace DiscordTunnel
             InitializeCoreEngine();
             SetupSystemTray();
             EnsureDnsOverHttpsSecurity();
+            CleanupLegacyBridgeArtifacts();
 
             var directHandler = new SocketsHttpHandler
             {
@@ -199,8 +200,6 @@ namespace DiscordTunnel
                     ExtractResource("DiscordTunnel.Core.WinDivert64.sys", Path.Combine(_coreDir, "WinDivert64.sys"));
                     ExtractResource("DiscordTunnel.Core.discord-list.txt", Path.Combine(_coreDir, "discord-list.txt"));
                     ExtractResource("DiscordTunnel.Core.ciadpi.exe", Path.Combine(_coreDir, "ciadpi.exe"));
-                    ExtractResource("DiscordTunnel.Core.version.dll", Path.Combine(_coreDir, "version.dll"));
-                    ExtractResource("DiscordTunnel.Core.drover.ini", Path.Combine(_coreDir, "drover.ini"));
                 }
 
                 _exePath = Path.Combine(_coreDir, "DiscordShieldEngine.exe");
@@ -229,46 +228,7 @@ namespace DiscordTunnel
             catch { }
         }
 
-        private void DeployDiscordBridge()
-        {
-            try
-            {
-                string versionDllSource = Path.Combine(_coreDir, "version.dll");
-                string droverIniSource = Path.Combine(_coreDir, "drover.ini");
-                if (!File.Exists(versionDllSource) || !File.Exists(droverIniSource)) return;
-
-                string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-                string[] discordFlavors = new[] { "Discord", "DiscordPTB", "DiscordCanary" };
-
-                foreach (string flavor in discordFlavors)
-                {
-                    string basePath = Path.Combine(localAppData, flavor);
-                    if (!Directory.Exists(basePath)) continue;
-
-                    foreach (string appDir in Directory.GetDirectories(basePath, "app-*"))
-                    {
-                        try
-                        {
-                            string targetDll = Path.Combine(appDir, "version.dll");
-                            string targetIni = Path.Combine(appDir, "drover.ini");
-
-                            if (!File.Exists(targetDll) || new FileInfo(targetDll).Length != new FileInfo(versionDllSource).Length)
-                            {
-                                File.Copy(versionDllSource, targetDll, true);
-                            }
-                            if (!File.Exists(targetIni))
-                            {
-                                File.Copy(droverIniSource, targetIni, true);
-                            }
-                        }
-                        catch { }
-                    }
-                }
-            }
-            catch { }
-        }
-
-        private static void CleanupDiscordBridge()
+        private static void CleanupLegacyBridgeArtifacts()
         {
             try
             {
@@ -288,6 +248,7 @@ namespace DiscordTunnel
                             if (File.Exists(targetIni)) File.Delete(targetIni);
                         }
                         catch { }
+
                         try
                         {
                             string targetDll = Path.Combine(appDir, "version.dll");
@@ -349,7 +310,7 @@ namespace DiscordTunnel
         {
             _trayIcon = new NotifyIcon
             {
-                Text = "Discord Shield v1.0 - Disconnected",
+                Text = "Discord Shield v1.0.1 - Disconnected",
                 Icon = LoadTrayIcon(),
                 Visible = true
             };
@@ -404,22 +365,6 @@ namespace DiscordTunnel
             }
         }
 
-        private void MinimizeBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (MinimizeToTrayCheckBox.IsChecked == true)
-            {
-                Hide();
-                if (_isConnected)
-                {
-                    _trayIcon?.ShowBalloonTip(1200, "Discord Shield", "Running smoothly in tray. Discord traffic is protected.", ToolTipIcon.Info);
-                }
-            }
-            else
-            {
-                WindowState = WindowState.Minimized;
-            }
-        }
-
         private void MenuBtn_Click(object sender, RoutedEventArgs e)
         {
             if (MenuBtn.ContextMenu != null)
@@ -440,66 +385,20 @@ namespace DiscordTunnel
             PrivacyOverlay.Visibility = Visibility.Collapsed;
         }
 
-        private void AddDefenderExclusion_Click(object sender, RoutedEventArgs e)
+        private void MinimizeBtn_Click(object sender, RoutedEventArgs e)
         {
-            try
+            if (MinimizeToTrayCheckBox.IsChecked == true)
             {
-                string appDir = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
-                string localApp = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DiscordTunnel");
-                string psCommand = $"Add-MpPreference -ExclusionPath '{appDir}', '{localApp}' -ExclusionProcess 'DiscordTunnel.exe', 'DiscordShieldEngine.exe', 'ciadpi.exe'";
-
-                var startInfo = new ProcessStartInfo
+                Hide();
+                if (_isConnected)
                 {
-                    FileName = "powershell.exe",
-                    Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{psCommand}\"",
-                    Verb = "runas",
-                    CreateNoWindow = true,
-                    UseShellExecute = true
-                };
-
-                using var proc = Process.Start(startInfo);
-                proc?.WaitForExit(3000);
-
-                MessageBox.Show(
-                    "Discord Shield directory and processes have been added to Windows Defender exclusions.\n\nFalse positive antivirus alerts will no longer occur.",
-                    "Defender Exclusion Added",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                    _trayIcon?.ShowBalloonTip(1200, "Discord Shield", "Running smoothly in tray. Discord traffic is protected.", ToolTipIcon.Info);
+                }
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show(
-                    $"Could not add Defender exclusion automatically:\n{ex.Message}\n\nYou can manually add the installation directory to Windows Security exclusions.",
-                    "Exclusion Notice",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
+                WindowState = WindowState.Minimized;
             }
-        }
-
-        private void DotNetDownload_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = "https://dotnet.microsoft.com/en-us/download/dotnet/10.0",
-                    UseShellExecute = true
-                });
-            }
-            catch { }
-        }
-
-        private void GitHubLink_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = "https://github.com/arshiatxd/discordshield",
-                    UseShellExecute = true
-                });
-            }
-            catch { }
         }
 
         private void CloseBtn_Click(object sender, RoutedEventArgs e)
@@ -529,11 +428,7 @@ namespace DiscordTunnel
                 _trayIcon = null;
             }
 
-            Task.Run(() =>
-            {
-                StopAllEnginesSync();
-                CleanupDiscordBridge();
-            });
+            Task.Run(StopAllEnginesSync);
 
             _directClient.Dispose();
             _socksClient.Dispose();
@@ -554,12 +449,7 @@ namespace DiscordTunnel
                 _trayIcon = null;
             }
 
-            Task.Run(() =>
-            {
-                StopAllEnginesSync();
-                CleanupDiscordBridge();
-            });
-
+            Task.Run(StopAllEnginesSync);
             System.Windows.Application.Current.Shutdown();
         }
 
@@ -641,7 +531,7 @@ namespace DiscordTunnel
                 StatusLabel.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FEE75C"));
                 StatusSubLabel.Text = "Starting Discord Shield Engine...";
                 SecurityPill.Visibility = Visibility.Visible;
-                SecurityPillText.Text = "Initializing Dual-Layer Bypass...";
+                SecurityPillText.Text = "Initializing Shield Tunnel...";
 
                 if (!File.Exists(_exePath) || !File.Exists(_proxyExePath))
                 {
@@ -651,7 +541,6 @@ namespace DiscordTunnel
                 await Task.Run(() =>
                 {
                     StopAllEnginesSync();
-                    DeployDiscordBridge();
                     ConfigureDnsOverHttpsTemplates();
                     Thread.Sleep(250);
                     FlushDnsCache();
@@ -661,37 +550,18 @@ namespace DiscordTunnel
 
                 var profilesToTry = new List<RegionOption>();
                 int selectedIndex = RegionCombo.SelectedIndex;
-                var selectedOption = (selectedIndex >= 0 && selectedIndex < _regionOptions.Count)
-                    ? _regionOptions[selectedIndex]
-                    : _regionOptions[0];
 
-                if (selectedOption.Code != "AUTO")
+                if (selectedIndex > 0 && selectedIndex < _regionOptions.Count)
                 {
-                    profilesToTry.Add(selectedOption);
+                    profilesToTry.Add(_regionOptions[selectedIndex]);
                 }
                 else
                 {
-                    string geo = string.Empty;
-                    try
-                    {
-                        geo = System.Globalization.RegionInfo.CurrentRegion.TwoLetterISORegionName.ToUpperInvariant();
-                    }
-                    catch { }
-
-                    var allProfiles = _regionOptions.Where(r => r.Code != "AUTO").ToList();
-                    var primary = allProfiles.FirstOrDefault(r => r.Code == geo);
-                    if (primary != null)
-                    {
-                        profilesToTry.Add(primary);
-                        foreach (var other in allProfiles)
-                        {
-                            if (other != primary) profilesToTry.Add(other);
-                        }
-                    }
-                    else
-                    {
-                        profilesToTry.AddRange(allProfiles);
-                    }
+                    profilesToTry.Add(_regionOptions[1]);
+                    profilesToTry.Add(_regionOptions[2]);
+                    profilesToTry.Add(_regionOptions[3]);
+                    profilesToTry.Add(_regionOptions[4]);
+                    profilesToTry.Add(_regionOptions[5]);
                 }
 
                 bool isAutoMode = profilesToTry.Count > 1;
@@ -858,7 +728,7 @@ namespace DiscordTunnel
                 {
                     var sw = Stopwatch.StartNew();
                     using var request = new HttpRequestMessage(HttpMethod.Get, "https://discord.com/api/v9/gateway");
-                    request.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) DiscordTunnel/1.0");
+                    request.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) DiscordShield/1.0.1");
 
                     using var response = await _socksClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token);
                     sw.Stop();
@@ -878,7 +748,7 @@ namespace DiscordTunnel
                 {
                     var sw = Stopwatch.StartNew();
                     using var request = new HttpRequestMessage(HttpMethod.Get, "https://discord.com/api/v9/gateway");
-                    request.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) DiscordTunnel/1.0");
+                    request.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) DiscordShield/1.0.1");
 
                     using var response = await _directClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token);
                     sw.Stop();
@@ -963,7 +833,7 @@ namespace DiscordTunnel
                         {
                             var sw = Stopwatch.StartNew();
                             using var request = new HttpRequestMessage(HttpMethod.Get, "https://discord.com/api/v9/gateway");
-                            request.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) DiscordTunnel/1.0");
+                            request.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) DiscordShield/1.0.1");
 
                             using var response = await _socksClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token).ConfigureAwait(false);
                             sw.Stop();
@@ -1017,7 +887,6 @@ namespace DiscordTunnel
             await Task.Run(() =>
             {
                 StopAllEnginesSync();
-                CleanupDiscordBridge();
                 Thread.Sleep(200);
             });
         }
@@ -1102,7 +971,7 @@ namespace DiscordTunnel
 
                 SecurityPill.Visibility = Visibility.Visible;
                 string displayProf = string.IsNullOrEmpty(profileName) ? _activeProfileName : profileName;
-                SecurityPillText.Text = $"{displayProf} • Dual-Layer Shield Active";
+                SecurityPillText.Text = $"{displayProf} • Active Shield Tunnel";
 
                 ConnectBtn.Content = "Disconnect";
                 ConnectBtn.Background = (LinearGradientBrush)FindResource("ButtonConnectedGradient");
@@ -1111,7 +980,7 @@ namespace DiscordTunnel
 
                 if (_trayIcon != null)
                 {
-                    _trayIcon.Text = $"Discord Shield v1.0 - Connected ({latencyMs} ms)";
+                    _trayIcon.Text = $"Discord Shield v1.0.1 - Connected ({latencyMs} ms)";
                     if (_trayIcon.ContextMenuStrip != null && _trayIcon.ContextMenuStrip.Items.Count > 1)
                     {
                         _trayIcon.ContextMenuStrip.Items[1].Text = "Disconnect";
@@ -1168,7 +1037,7 @@ namespace DiscordTunnel
 
                 if (_trayIcon != null)
                 {
-                    _trayIcon.Text = "Discord Shield v1.0 - Disconnected";
+                    _trayIcon.Text = "Discord Shield v1.0.1 - Disconnected";
                     if (_trayIcon.ContextMenuStrip != null && _trayIcon.ContextMenuStrip.Items.Count > 1)
                     {
                         _trayIcon.ContextMenuStrip.Items[1].Text = "Connect";
@@ -1197,7 +1066,7 @@ namespace DiscordTunnel
 
             PingBadge.Visibility = Visibility.Collapsed;
             SecurityPill.Visibility = Visibility.Visible;
-            SecurityPillText.Text = "Verification Failed • Safe Driver Reset";
+            SecurityPillText.Text = "Verification Failed • Safe Engine Reset";
 
             ConnectBtn.Content = "Retry Connection";
             ConnectBtn.Background = (LinearGradientBrush)FindResource("ButtonIdleGradient");

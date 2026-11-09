@@ -1,7 +1,7 @@
 #define MyAppName "Discord Shield"
-#define MyAppVersion "1.0"
+#define MyAppVersion "1.0.1"
 #define MyAppPublisher "Discord Shield"
-#define MyAppURL "https://discord.com"
+#define MyAppURL "https://github.com/arshiatxd/discordshield"
 #define MyAppExeName "DiscordTunnel.exe"
 #define SourceDir "..\publish"
 
@@ -14,9 +14,9 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-VersionInfoVersion=1.0.0.0
+VersionInfoVersion=1.0.1.0
 VersionInfoProductName={#MyAppName}
-VersionInfoProductVersion=1.0
+VersionInfoProductVersion=1.0.1
 VersionInfoDescription={#MyAppName} v{#MyAppVersion} Setup Wizard
 VersionInfoCopyright=Copyright (C) 2026 {#MyAppPublisher}
 DefaultDirName={autopf}\{#MyAppName}
@@ -46,7 +46,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Messages]
 SetupWindowTitle=Setup - {#MyAppName} v{#MyAppVersion}
 WelcomeLabel1=Welcome to the {#MyAppName} v{#MyAppVersion} Setup Wizard
-WelcomeLabel2=This wizard will install {#MyAppName} v{#MyAppVersion} on your computer.%n%n{#MyAppName} provides a Zero-Trust Dual-Layer DPI Bypass & Encrypted DoH Tunnel engineered to restore instant, low-latency Discord connectivity across restricted networks (Turkey, Russia, Iran, UAE, and Global routes).%n%nRequires Microsoft .NET 10 Desktop Runtime (downloadable from dotnet.microsoft.com).%n%nClick Next to continue.
+WelcomeLabel2=This wizard will install {#MyAppName} v{#MyAppVersion} on your computer.%n%n{#MyAppName} provides a Zero-Trust Dual-Layer DPI Bypass & Encrypted DoH Tunnel engineered to restore instant, low-latency Discord connectivity across restricted networks (Turkey, Russia, Iran, UAE, and Global routes).%n%nClick Next to continue.
 FinishedHeadingLabel=Completing the {#MyAppName} v{#MyAppVersion} Setup Wizard
 FinishedLabelNoIcons=Setup has finished installing {#MyAppName} v{#MyAppVersion} on your computer. Your dual-layer DPI bypass engine is ready.
 FinishedLabel=Setup has finished installing {#MyAppName} v{#MyAppVersion} on your computer. The application may be launched by selecting the installed shortcuts.
@@ -54,7 +54,6 @@ FinishedLabel=Setup has finished installing {#MyAppName} v{#MyAppVersion} on you
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: checkedonce
 Name: "startupicon"; Description: "Launch {#MyAppName} automatically on Windows startup"; GroupDescription: "System Integration:"; Flags: unchecked
-Name: "defenderexclusion"; Description: "Add Windows Defender exclusion (prevents false-positive antivirus blocks)"; GroupDescription: "Security & Compatibility:"; Flags: checkedonce
 
 [Files]
 Source: "{#SourceDir}\DiscordTunnel.exe"; DestDir: "{app}"; Flags: ignoreversion
@@ -68,8 +67,6 @@ Source: "{#SourceDir}\Core\WinDivert.dll"; DestDir: "{app}\Core"; Flags: ignorev
 Source: "{#SourceDir}\Core\WinDivert64.sys"; DestDir: "{app}\Core"; Flags: ignoreversion
 Source: "{#SourceDir}\Core\discord-list.txt"; DestDir: "{app}\Core"; Flags: ignoreversion
 Source: "{#SourceDir}\Core\ciadpi.exe"; DestDir: "{app}\Core"; Flags: ignoreversion
-Source: "{#SourceDir}\Core\version.dll"; DestDir: "{app}\Core"; Flags: ignoreversion
-Source: "{#SourceDir}\Core\drover.ini"; DestDir: "{app}\Core"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
@@ -78,11 +75,10 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 Name: "{commonstartup}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: startupicon
 
 [Run]
-Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -Command ""Add-MpPreference -ExclusionPath '{app}'"""; Flags: runhidden; Tasks: defenderexclusion; StatusMsg: "Configuring security exclusions..."
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
-Filename: "{sys}\cmd.exe"; Parameters: "/c taskkill /f /im DiscordTunnel.exe & taskkill /f /im DiscordShieldEngine.exe & taskkill /f /im ciadpi.exe & sc stop WinDivert"; Flags: runhidden; RunOnceId: "DiscordShieldUninstallCleanup"
+Filename: "{sys}\sc.exe"; Parameters: "stop WinDivert"; Flags: runhidden; RunOnceId: "DiscordShieldStopDriver"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\Core"

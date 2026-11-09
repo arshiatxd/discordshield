@@ -11,6 +11,7 @@ discord.gift
 dis.gd
 discordstatus.com
 gateway.discord.gg
+gateway-fallback.discord.gg
 cdn.discordapp.com
 media.discordapp.net
 images-ext-1.discordapp.net
@@ -23,7 +24,7 @@ updates.discord.com
 status.discord.com
 dl-debug.discordapp.net
 discord-attachments-uploads-prd.storage.googleapis.com
-discordactivities.com
-discord-activities.com
-discord.new
-discord.store
+click.discord.com
+streamer.discord.gg
+webrtc.discord.media
+audio.discord.media

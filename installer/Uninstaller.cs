@@ -7,8 +7,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Uninstall Discord Shield")]
 [assembly: AssemblyDescription("Discord Shield Uninstaller")]
 [assembly: AssemblyProduct("Discord Shield")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.0.1.0")]
+[assembly: AssemblyFileVersion("1.0.1.0")]
 
 internal static class Program
 {

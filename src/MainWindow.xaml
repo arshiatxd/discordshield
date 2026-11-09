@@ -421,31 +421,28 @@
                         </StackPanel>
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,14,0">
-                            <Border x:Name="PingBadge" Visibility="Collapsed" Background="#2623A55A" BorderBrush="#23A55A" BorderThickness="1" CornerRadius="10" Padding="8,3" Margin="0,0,10,0" VerticalAlignment="Center">
+                            <Border x:Name="PingBadge" Visibility="Collapsed" Background="#2623A55A" BorderBrush="#23A55A" BorderThickness="1" CornerRadius="10" Padding="8,3" Margin="0,0,8,0" VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                     <Ellipse x:Name="PingDot" Width="6" Height="6" Fill="#23A55A" Margin="0,0,5,0" VerticalAlignment="Center"/>
                                     <TextBlock x:Name="PingBadgeText" Text="-- ms" Foreground="#4ADE80" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Border>
 
-                            <Button x:Name="MenuBtn" Style="{StaticResource WindowCtrlBtn}" Click="MenuBtn_Click" Margin="0,0,4,0" ToolTip="Options &amp; Privacy Policy">
+                            <Button x:Name="MenuBtn" Style="{StaticResource WindowCtrlBtn}" Click="MenuBtn_Click" Margin="0,0,4,0" ToolTip="Options">
                                 <Viewbox Width="12" Height="12" HorizontalAlignment="Center" VerticalAlignment="Center">
                                     <Canvas Width="16" Height="16">
                                         <Ellipse Canvas.Left="6.5" Canvas.Top="2" Width="3" Height="3" Fill="#949BA4"/>
-                                        <Ellipse Canvas.Left="6.5" Canvas.Top="6.5" Width="3" Height="3" Fill="#949BA4"/>
-                                        <Ellipse Canvas.Left="6.5" Canvas.Top="11" Width="3" Height="3" Fill="#949BA4"/>
+                                        <Ellipse Canvas.Left="6.5" Canvas.Top="7" Width="3" Height="3" Fill="#949BA4"/>
+                                        <Ellipse Canvas.Left="6.5" Canvas.Top="12" Width="3" Height="3" Fill="#949BA4"/>
                                     </Canvas>
                                 </Viewbox>
                                 <Button.ContextMenu>
-                                    <ContextMenu Background="#1E1F22" BorderBrush="#3F4147" BorderThickness="1">
-                                        <MenuItem Header="Privacy Policy &amp; Safety" Click="PrivacyPolicy_Click" Foreground="#F2F3F5" FontWeight="SemiBold"/>
-                                        <MenuItem Header="Add Windows Defender Exclusion" Click="AddDefenderExclusion_Click" Foreground="#F2F3F5"/>
-                                        <Separator Background="#2B2D31"/>
-                                        <MenuItem Header="Official .NET 10 Runtime Download" Click="DotNetDownload_Click" Foreground="#F2F3F5"/>
-                                        <MenuItem Header="GitHub Source Code" Click="GitHubLink_Click" Foreground="#F2F3F5"/>
+                                    <ContextMenu Background="#1E1F22" BorderBrush="#4E5058" BorderThickness="1">
+                                        <MenuItem Header="Privacy Policy" Click="PrivacyPolicy_Click" Foreground="#DBDEE1" FontSize="12" FontWeight="SemiBold"/>
                                     </ContextMenu>
                                 </Button.ContextMenu>
                             </Button>
+
                             <Button Style="{StaticResource WindowCtrlBtn}" Click="MinimizeBtn_Click" Content="─" Margin="0,0,4,0"/>
                             <Button Style="{StaticResource CloseCtrlBtn}" Click="CloseBtn_Click" Content="✕"/>
                         </StackPanel>
@@ -550,7 +547,7 @@
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <Viewbox Width="11" Height="11" Margin="0,0,6,0" VerticalAlignment="Center">
                                     <Canvas Width="16" Height="16">
-                                        <Path Data="M 8,1.5 L 14,4 L 14,8.5 C 14,12 11,14.5 8,15.5 C 5,14.5 2,12 2,8.5 L 2,4 Z" Fill="#5865F2"/>
+                                        <Path Data="M 8 1 L 2 3.5 L 2 7.5 C 2 11.5 8 15 8 15 C 8 15 14 11.5 14 7.5 L 14 3.5 Z" Fill="#A5B4FC"/>
                                     </Canvas>
                                 </Viewbox>
                                 <TextBlock x:Name="SecurityPillText" Text="DoH Encrypted • Zero-Trust Tunnel" Foreground="#E3E5E8" FontSize="11" FontWeight="Medium" VerticalAlignment="Center"/>
@@ -568,7 +565,7 @@
                     </Grid>
 
                     <Grid Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="24,0,24,2">
-                        <TextBlock Text="Starting Discord may take a few tries to connect. Please retry if connection fails initially."
+                        <TextBlock Text="Starting Discord may take a few tries to connect. Try closing and reopening Discord too, as it may solve the issue."
                                    Foreground="#8E9297" FontSize="10.5" TextWrapping="Wrap" TextAlignment="Center" LineHeight="14"/>
                     </Grid>
 
@@ -578,17 +575,14 @@
                                 <CheckBox x:Name="MinimizeToTrayCheckBox" Style="{StaticResource DiscordToggleSwitchStyle}" IsChecked="True" VerticalAlignment="Center">
                                     <TextBlock Text="Minimize to system tray" Foreground="#DBDEE1" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                 </CheckBox>
-                                <TextBlock Text="v1.0" Foreground="#80848E" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <TextBlock Text="v1.0.1" Foreground="#80848E" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,4,0"/>
                             </Grid>
                         </Border>
                     </Grid>
                 </Grid>
 
-                <Grid x:Name="PrivacyOverlay" Visibility="Collapsed" Background="#F2111214">
-                    <Border Width="360" MaxHeight="520" Background="#1E1F22" BorderBrush="#3F4147" BorderThickness="1" CornerRadius="24" Padding="22,20">
-                        <Border.Effect>
-                            <DropShadowEffect BlurRadius="30" ShadowDepth="8" Opacity="0.7" Color="#000000"/>
-                        </Border.Effect>
+                <Grid x:Name="PrivacyOverlay" Visibility="Collapsed" Background="#F0111215">
+                    <Border CornerRadius="40.5" Background="#18191C" BorderBrush="#35373C" BorderThickness="1" Margin="16,20,16,20" Padding="20,18">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -596,63 +590,33 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <StackPanel Grid.Row="0" Margin="0,0,0,14">
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,4">
-                                    <Viewbox Width="20" Height="20" Margin="0,0,8,0" VerticalAlignment="Center">
-                                        <Canvas Width="16" Height="16">
-                                            <Path Data="M 8,1 L 14.5,3.8 L 14.5,8 C 14.5,12 11,14.7 8,15.8 C 5,14.7 1.5,12 1.5,8 L 1.5,3.8 Z" Fill="#5865F2"/>
-                                            <Path Data="M 6.5,8 L 7.5,9.5 L 10.5,5.5" Stroke="#FFFFFF" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                        </Canvas>
-                                    </Viewbox>
-                                    <TextBlock Text="Privacy Policy &amp; Safety" Foreground="#F2F3F5" FontSize="16" FontWeight="Bold" VerticalAlignment="Center"/>
-                                </StackPanel>
-                                <Border Background="#2623A55A" BorderBrush="#23A55A" BorderThickness="0.8" CornerRadius="8" Padding="8,3" HorizontalAlignment="Center">
-                                    <TextBlock Text="Zero Data Collection • 100% Local Engine" Foreground="#4ADE80" FontSize="10.5" FontWeight="SemiBold"/>
-                                </Border>
-                            </StackPanel>
+                            <TextBlock Grid.Row="0" Text="Privacy Policy" Foreground="#FFFFFF" FontSize="17" FontWeight="Bold" Margin="0,0,0,14"/>
 
-                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,0,0,14" SnapsToDevicePixels="True">
+                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" SnapsToDevicePixels="True" Margin="0,0,0,16">
                                 <StackPanel>
-                                    <Border Background="#2B2D31" CornerRadius="12" Padding="12,10" Margin="0,0,0,10">
-                                        <StackPanel>
-                                            <TextBlock Text="Zero Telemetry &amp; Absolute Privacy" Foreground="#F2F3F5" FontSize="12" FontWeight="Bold" Margin="0,0,0,4"/>
-                                            <TextBlock Text="Discord Shield runs entirely on your local machine. It does not route user data through external proxy servers, does not log web requests, and contains zero remote analytics, tracking, or telemetry."
-                                                       Foreground="#B5BAC1" FontSize="11" TextWrapping="Wrap" LineHeight="15"/>
-                                        </StackPanel>
-                                    </Border>
+                                    <TextBlock Text="Discord Shield operates 100% locally on your computer."
+                                               Foreground="#F2F3F5" FontSize="11.5" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,10"/>
 
-                                    <Border Background="#2B2D31" CornerRadius="12" Padding="12,10" Margin="0,0,0,10">
-                                        <StackPanel>
-                                            <TextBlock Text="Why Antivirus May Alert (False Positive)" Foreground="#FEE75C" FontSize="12" FontWeight="Bold" Margin="0,0,0,4"/>
-                                            <TextBlock Text="Windows Defender or third-party security software may flag this application because it uses a low-level network packet filter driver (WinDivert) and local loopback proxying. These components are used strictly to segment and desynchronize TLS handshakes to circumvent ISP censorship, not to perform malicious operations."
-                                                       Foreground="#B5BAC1" FontSize="11" TextWrapping="Wrap" LineHeight="15"/>
-                                        </StackPanel>
-                                    </Border>
+                                    <TextBlock Text="Zero Data Collection" Foreground="#DBDEE1" FontSize="12" FontWeight="Bold" Margin="0,0,0,3"/>
+                                    <TextBlock Text="The application never collects, records, stores, or transmits your personal data, Discord tokens, credentials, voice traffic, or chat messages."
+                                               Foreground="#949BA4" FontSize="11" TextWrapping="Wrap" LineHeight="15" Margin="0,0,0,10"/>
 
-                                    <Border Background="#2B2D31" CornerRadius="12" Padding="12,10" Margin="0,0,0,10">
-                                        <StackPanel>
-                                            <TextBlock Text="Open Source &amp; Auditable" Foreground="#5865F2" FontSize="12" FontWeight="Bold" Margin="0,0,0,4"/>
-                                            <TextBlock Text="Every line of source code, build scripts, and installer definitions are public and auditable on GitHub. You can inspect the entire repository at github.com/arshiatxd/discordshield."
-                                                       Foreground="#B5BAC1" FontSize="11" TextWrapping="Wrap" LineHeight="15"/>
-                                        </StackPanel>
-                                    </Border>
+                                    <TextBlock Text="Local Network Filtering" Foreground="#DBDEE1" FontSize="12" FontWeight="Bold" Margin="0,0,0,3"/>
+                                    <TextBlock Text="All packet filtering and TLS handshake desynchronization occur solely on your local network adapter. Discord traffic connects directly to Discord servers without passing through intermediary proxy servers."
+                                               Foreground="#949BA4" FontSize="11" TextWrapping="Wrap" LineHeight="15" Margin="0,0,0,10"/>
 
-                                    <Border Background="#2B2D31" CornerRadius="12" Padding="12,10">
-                                        <StackPanel>
-                                            <TextBlock Text="Official .NET Runtime Notice" Foreground="#F2F3F5" FontSize="12" FontWeight="Bold" Margin="0,0,0,4"/>
-                                            <TextBlock Text="Always download the .NET 10 Desktop Runtime directly from Microsoft's official portal (dotnet.microsoft.com). Avoid unofficial third-party mirrors."
-                                                       Foreground="#B5BAC1" FontSize="11" TextWrapping="Wrap" LineHeight="15"/>
-                                        </StackPanel>
-                                    </Border>
+                                    <TextBlock Text="No Telemetry or Tracking" Foreground="#DBDEE1" FontSize="12" FontWeight="Bold" Margin="0,0,0,3"/>
+                                    <TextBlock Text="There are no analytics, remote tracking systems, background reporting services, or advertising frameworks embedded in this software."
+                                               Foreground="#949BA4" FontSize="11" TextWrapping="Wrap" LineHeight="15" Margin="0,0,0,10"/>
+
+                                    <TextBlock Text="Open Source Verification" Foreground="#DBDEE1" FontSize="12" FontWeight="Bold" Margin="0,0,0,3"/>
+                                    <TextBlock Text="Discord Shield is completely open source and auditable on GitHub at github.com/arshiatxd/discordshield."
+                                               Foreground="#949BA4" FontSize="11" TextWrapping="Wrap" LineHeight="15"/>
                                 </StackPanel>
                             </ScrollViewer>
 
-                            <StackPanel Grid.Row="2">
-                                <Button Click="AddDefenderExclusion_Click" Style="{StaticResource DiscordPillButtonStyle}" Height="34" Margin="0,0,0,8"
-                                        Content="Add Windows Defender Exclusion" Background="#35373C" FontSize="11.5"/>
-                                <Button Click="ClosePrivacyPolicy_Click" Style="{StaticResource DiscordPillButtonStyle}" Height="36"
-                                        Content="Close" Background="{StaticResource ButtonIdleGradient}" FontSize="12"/>
-                            </StackPanel>
+                            <Button Grid.Row="2" Click="ClosePrivacyPolicy_Click" Style="{StaticResource DiscordPillButtonStyle}"
+                                    Width="140" Height="38" Content="Close" Background="{StaticResource ButtonIdleGradient}" FontSize="13"/>
                         </Grid>
                     </Border>
                 </Grid>
