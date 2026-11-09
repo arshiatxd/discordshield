@@ -48,8 +48,26 @@ namespace DiscordTunnel
         {
             new RegionOption
             {
+                Code = "AUTO",
+                Name = "Auto-Detect (Smart Route)",
+                ShortName = "Auto Route",
+                Description = "Multi-Profile Auto Verification",
+                Arguments = string.Empty,
+                ProxyArguments = "--oob 1 --tlsrec 1+s --auto=torst,ssl_err -s 1 -d 3+s --ttl 5 --fake -1+s --fake-sni www.cloudflare.com -M h,d -a 2 -p 1080"
+            },
+            new RegionOption
+            {
+                Code = "IR",
+                Name = "Iran (MCI, Irancell, Shatel, Zitel, etc.)",
+                ShortName = "Iran",
+                Description = "Stateful DPI & Multi-ISP Desync Shield",
+                Arguments = "-9 --fake-gen 10 --wrong-seq --wrong-chksum -q --dns-addr 77.88.8.8 --dns-port 1253 --dnsv6-addr 2a02:6b8::feed:0ff --dnsv6-port 1253 --blacklist discord-list.txt",
+                ProxyArguments = "--oob 1 --tlsrec 1+s --auto=torst,ssl_err -s 1 -d 3+s --ttl 5 --fake -1+s --fake-sni www.cloudflare.com -M h,d -a 2 -p 1080"
+            },
+            new RegionOption
+            {
                 Code = "TR",
-                Name = "Turkey (BTK Bypass)",
+                Name = "Turkey (BTK / Turk Telekom)",
                 ShortName = "Turkey",
                 Description = "TLS Record Split & SNI Desync Tunnel",
                 Arguments = "-5 --set-ttl 5 --dns-addr 77.88.8.8 --dns-port 1253 --dnsv6-addr 2a02:6b8::feed:0ff --dnsv6-port 1253",
@@ -63,15 +81,6 @@ namespace DiscordTunnel
                 Description = "Dynamic TTL Shielding & TLS Record Split",
                 Arguments = "-9 --auto-ttl 1-4-10 -q --dns-addr 77.88.8.8 --dns-port 1253 --dnsv6-addr 2a02:6b8::feed:0ff --dnsv6-port 1253 --blacklist discord-list.txt",
                 ProxyArguments = "--split 1 --disorder 3+s --mod-http=h,d --auto=torst --tlsrec 1+s --ttl 5 -p 1080"
-            },
-            new RegionOption
-            {
-                Code = "IR",
-                Name = "Iran (Stateful DPI Bypass)",
-                ShortName = "Iran",
-                Description = "OOB Desync • Fake SNI & TLS Record Split",
-                Arguments = "-9 --fake-gen 10 -q --dns-addr 77.88.8.8 --dns-port 1253 --dnsv6-addr 2a02:6b8::feed:0ff --dnsv6-port 1253 --blacklist discord-list.txt",
-                ProxyArguments = "--oob 1 --tlsrec 1+s --auto=torst,ssl_err -s 1 -d 3+s --ttl 5 --fake -1+s --fake-sni www.cloudflare.com -M h,d -p 1080"
             },
             new RegionOption
             {
@@ -89,15 +98,6 @@ namespace DiscordTunnel
                 ShortName = "Global",
                 Description = "Deep Packet Splitting & Shield Tunnel",
                 Arguments = "-5 -q --auto-ttl 1-4-10 --dns-addr 77.88.8.8 --dns-port 1253 --blacklist discord-list.txt",
-                ProxyArguments = "--split 1 --disorder 3+s --mod-http=h,d --auto=torst --tlsrec 1+s -p 1080"
-            },
-            new RegionOption
-            {
-                Code = "AUTO",
-                Name = "Auto-Detect (Smart Route)",
-                ShortName = "Auto Route",
-                Description = "Multi-Profile Auto Verification",
-                Arguments = string.Empty,
                 ProxyArguments = "--split 1 --disorder 3+s --mod-http=h,d --auto=torst --tlsrec 1+s -p 1080"
             }
         };
@@ -173,16 +173,6 @@ namespace DiscordTunnel
                 {
                     return index;
                 }
-            }
-            catch { }
-
-            try
-            {
-                string geo = System.Globalization.RegionInfo.CurrentRegion.TwoLetterISORegionName.ToUpperInvariant();
-                if (geo == "TR") return 0;
-                if (geo == "RU" || geo == "BY") return 1;
-                if (geo == "IR") return 2;
-                if (geo == "AE" || geo == "OM" || geo == "QA" || geo == "SA") return 3;
             }
             catch { }
 
@@ -589,18 +579,37 @@ namespace DiscordTunnel
 
                 var profilesToTry = new List<RegionOption>();
                 int selectedIndex = RegionCombo.SelectedIndex;
+                var selectedOption = (selectedIndex >= 0 && selectedIndex < _regionOptions.Count)
+                    ? _regionOptions[selectedIndex]
+                    : _regionOptions[0];
 
-                if (selectedIndex >= 0 && selectedIndex < 5)
+                if (selectedOption.Code != "AUTO")
                 {
-                    profilesToTry.Add(_regionOptions[selectedIndex]);
+                    profilesToTry.Add(selectedOption);
                 }
                 else
                 {
-                    profilesToTry.Add(_regionOptions[0]);
-                    profilesToTry.Add(_regionOptions[1]);
-                    profilesToTry.Add(_regionOptions[2]);
-                    profilesToTry.Add(_regionOptions[3]);
-                    profilesToTry.Add(_regionOptions[4]);
+                    string geo = string.Empty;
+                    try
+                    {
+                        geo = System.Globalization.RegionInfo.CurrentRegion.TwoLetterISORegionName.ToUpperInvariant();
+                    }
+                    catch { }
+
+                    var allProfiles = _regionOptions.Where(r => r.Code != "AUTO").ToList();
+                    var primary = allProfiles.FirstOrDefault(r => r.Code == geo);
+                    if (primary != null)
+                    {
+                        profilesToTry.Add(primary);
+                        foreach (var other in allProfiles)
+                        {
+                            if (other != primary) profilesToTry.Add(other);
+                        }
+                    }
+                    else
+                    {
+                        profilesToTry.AddRange(allProfiles);
+                    }
                 }
 
                 bool isAutoMode = profilesToTry.Count > 1;

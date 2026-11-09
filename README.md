@@ -58,13 +58,18 @@ Discord Shield includes tailored desynchronization profiles optimized for the in
 
 ### Iran
 - **Supported Operators:**
+  - Shatel (Fixed Broadband & Optical Fiber)
+  - Asiatech (ADSL & Enterprise)
+  - Zitel (Fixed Wireless Access / TD-LTE)
+  - Pars Online (Fixed Broadband)
+  - RighTel (3G / 4G / 5G Mobile)
+  - Sabanet (ADSL & VDSL)
+  - Pishgaman (Fixed Broadband)
+  - Hi-Web (ADSL & Fixed Wireless)
   - Telecommunication Company of Iran (TCI / Mokhaberat)
-  - Shatel
-  - Asiatech
-  - Pishgaman
-  - Irancell (Fixed Wireless and standard cellular connectivity)
-  - Hamrah-e Aval / MCI (Fixed Wireless and standard cellular connectivity)
-- **Inspection Characteristics:** Combines out-of-band (OOB) TCP evasion, whitelisted fake SNI injection (`www.cloudflare.com`), and strict DoH routing to neutralize `10.10.34.34` DNS hijacking. Complete IP blackholing or non-Cloudflare UDP voice relay blocks require an external relay.
+  - MTN Irancell (TD-LTE & Mobile)
+  - Hamrah-e Aval / MCI (Mobile & Fixed)
+- **Inspection Characteristics:** Employs multi-stage out-of-band (OOB) TCP desynchronization, whitelisted fake SNI injection (`www.cloudflare.com`), TLS record splitting, and non-standard DNS routing to neutralize `10.10.34.34` DNS hijacking and stateful DPI middlebox resets across national and regional transit gateways.
 
 ### United Arab Emirates and Gulf Region
 - **Supported Operators:**
