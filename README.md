@@ -59,9 +59,6 @@ Discord Shield includes tailored desynchronization profiles optimized for the in
 ### Iran
 - **Supported Operators:**
   - Telecommunication Company of Iran (TCI / Mokhaberat)
-  - Shatel
-  - Asiatech
-  - Pishgaman
   - Irancell (Fixed Wireless and standard cellular connectivity)
   - Hamrah-e Aval / MCI (Fixed Wireless and standard cellular connectivity)
 - **Inspection Characteristics:** Combines out-of-band (OOB) TCP evasion, whitelisted fake SNI injection (`www.cloudflare.com`), and strict DoH routing to neutralize `10.10.34.34` DNS hijacking. Complete IP blackholing or non-Cloudflare UDP voice relay blocks require an external relay.
