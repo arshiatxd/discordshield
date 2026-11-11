@@ -69,9 +69,9 @@ namespace DiscordTunnel
                 Code = "TR",
                 Name = "Turkey",
                 ShortName = "Turkey",
-                Description = "TLS Record Split and SNI Desync",
-                Arguments = "-5 --set-ttl 5 -q --blacklist discord-list.txt",
-                ProxyArguments = "--split 1 --disorder 3+s --mod-http=h,d --auto=torst --tlsrec 1+s -p 1080"
+                Description = "SNI Desync and TLS Record Split",
+                Arguments = "-5 --set-ttl 5 -q --reverse-frag --blacklist discord-list.txt",
+                ProxyArguments = "--split 1+s --disorder 3+s --mod-http=h,d --auto=torst,ssl_err --tlsrec 1+s -p 1080"
             },
             new RegionOption
             {

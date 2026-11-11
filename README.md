@@ -65,11 +65,17 @@ Discord Shield includes targeted desynchronization profiles optimized for the in
 
 ### Turkey
 - **Supported Operators:**
-  - Turk Telekom (Broadband and Mobile)
-  - Turkcell Superonline (Fiber and LTE)
-  - Vodafone Turkey
-  - Turksat Kablonet
-- **Inspection Characteristics:** Bypasses BTK-mandated domain blocking, DNS manipulation, and TCP reset injections.
+  - Turk Telekom (TTNET, VDSL, Fiber, and TT Mobil)
+  - Turkcell Superonline (Fiber, VDSL, and LTE)
+  - Vodafone Turkey (Fixed Broadband and Mobile)
+  - Turksat Kablonet (Cable Internet and Fiber)
+  - TurkNet (GigaFiber and VDSL)
+  - Millenicom
+  - D-Smart Net
+  - NetSpeed
+  - GibirNet
+  - Comnet
+- **Inspection Characteristics:** Out-of-order TCP segmentation, SNI offset splitting, reverse packet fragmentation, and selective QUIC suppression to evade BTK-mandated domain blocking and TCP reset injections.
 
 ### Russia
 - **Supported Operators:**
