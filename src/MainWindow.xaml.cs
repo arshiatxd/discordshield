@@ -53,7 +53,7 @@ namespace DiscordTunnel
                 ShortName = "Auto-Detect",
                 Description = "Automatic Route Verification",
                 Arguments = string.Empty,
-                ProxyArguments = "--split 1 --disorder 3+s --mod-http=h,d --auto=torst --tlsrec 1+s -p 1080"
+                ProxyArguments = "--oob 1 --tlsrec 1+s --split 1 --disorder 3+s --auto=torst,ssl_err -s 1 -d 3+s --ttl 4 --fake -1+s --fake-sni www.cloudflare.com -M h,d -p 1080"
             },
             new RegionOption
             {
@@ -69,9 +69,9 @@ namespace DiscordTunnel
                 Code = "TR",
                 Name = "Turkey",
                 ShortName = "Turkey",
-                Description = "SNI Desync and TLS Record Split",
-                Arguments = "-5 --set-ttl 5 -q --reverse-frag --blacklist discord-list.txt",
-                ProxyArguments = "--split 1+s --disorder 3+s --mod-http=h,d --auto=torst,ssl_err --tlsrec 1+s -p 1080"
+                Description = "Fake SNI, OOB Desync, and BTK Shield",
+                Arguments = "-9 --fake-gen 10 --wrong-seq --wrong-chksum --reverse-frag -q --dns-addr 77.88.8.8 --dns-port 1253 --blacklist discord-list.txt",
+                ProxyArguments = "--oob 1 --tlsrec 1+s --split 1 --disorder 3+s --auto=torst,ssl_err -s 1 -d 3+s --ttl 4 --fake -1+s --fake-sni www.cloudflare.com -M h,d -p 1080"
             },
             new RegionOption
             {
@@ -79,8 +79,8 @@ namespace DiscordTunnel
                 Name = "Russia",
                 ShortName = "Russia",
                 Description = "Dynamic TTL and TCP Segmentation",
-                Arguments = "-9 --auto-ttl 1-4-10 -q --blacklist discord-list.txt",
-                ProxyArguments = "--split 1 --disorder 3+s --mod-http=h,d --auto=torst --tlsrec 1+s --ttl 5 -p 1080"
+                Arguments = "-9 --fake-gen 10 --wrong-seq --wrong-chksum --reverse-frag --auto-ttl 1-4-10 -q --dns-addr 77.88.8.8 --dns-port 1253 --blacklist discord-list.txt",
+                ProxyArguments = "--oob 1 --tlsrec 1+s --split 1 --disorder 3+s --auto=torst,ssl_err -s 1 -d 3+s --ttl 5 --fake -1+s --fake-sni www.cloudflare.com -M h,d -p 1080"
             },
             new RegionOption
             {
@@ -88,8 +88,8 @@ namespace DiscordTunnel
                 Name = "UAE / Middle East",
                 ShortName = "UAE / Middle East",
                 Description = "VoIP and WebRTC Desync Shield",
-                Arguments = "-7 -q --blacklist discord-list.txt",
-                ProxyArguments = "--split 1 --disorder 3+s --mod-http=h,d --auto=torst --tlsrec 1+s -p 1080"
+                Arguments = "-9 --fake-gen 10 --wrong-seq --wrong-chksum --reverse-frag -q --dns-addr 77.88.8.8 --dns-port 1253 --blacklist discord-list.txt",
+                ProxyArguments = "--oob 1 --tlsrec 1+s --split 1 --disorder 3+s --auto=torst,ssl_err -s 1 -d 3+s --ttl 4 --fake -1+s --fake-sni www.cloudflare.com -M h,d -p 1080"
             },
             new RegionOption
             {
@@ -97,8 +97,8 @@ namespace DiscordTunnel
                 Name = "Global",
                 ShortName = "Global",
                 Description = "Deep Packet Splitting Shield",
-                Arguments = "-5 -q --blacklist discord-list.txt",
-                ProxyArguments = "--split 1 --disorder 3+s --mod-http=h,d --auto=torst --tlsrec 1+s -p 1080"
+                Arguments = "-9 --fake-gen 10 --wrong-seq --wrong-chksum --reverse-frag -q --dns-addr 77.88.8.8 --dns-port 1253 --blacklist discord-list.txt",
+                ProxyArguments = "--oob 1 --tlsrec 1+s --split 1 --disorder 3+s --auto=torst,ssl_err -s 1 -d 3+s --ttl 4 --fake -1+s --fake-sni www.cloudflare.com -M h,d -p 1080"
             }
         };
 
