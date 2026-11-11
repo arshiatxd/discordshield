@@ -367,6 +367,8 @@ namespace DiscordTunnel
                     SystemUtilities.FlushDnsCache();
                 }, token);
 
+                SystemUtilities.ApplyDiscordHostsMapping();
+
                 var profiles = await ResolveProfilesAsync(token);
                 bool autoMode = profiles.Count > 1;
                 string failure = "Discord Gateway unreachable.";
@@ -388,7 +390,11 @@ namespace DiscordTunnel
 
                     if (!IsEngineAlive(_proxyProcess) && !IsEngineAlive(_tunnelProcess))
                     {
-                        await Task.Run(StopAllEnginesSync);
+                        await Task.Run(() =>
+                        {
+                            StopAllEnginesSync();
+                            SystemUtilities.ApplyDiscordHostsMapping();
+                        });
                         continue;
                     }
 
@@ -409,6 +415,7 @@ namespace DiscordTunnel
                             StopAllEnginesSync();
                             Thread.Sleep(200);
                             SystemUtilities.FlushDnsCache();
+                            SystemUtilities.ApplyDiscordHostsMapping();
                         });
                     }
                 }

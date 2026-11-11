@@ -116,6 +116,41 @@ internal static class Program
         }
         catch { }
 
+        try
+        {
+            using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Internet Settings", true))
+            {
+                if (key != null)
+                {
+                    string url = key.GetValue("AutoConfigURL") as string;
+                    if (url != null && url.Contains("127.0.0.1:1085"))
+                    {
+                        key.DeleteValue("AutoConfigURL", false);
+                    }
+                }
+            }
+        }
+        catch { }
+
+        try
+        {
+            string hostsPath = Path.Combine(Environment.SystemDirectory, @"drivers\etc\hosts");
+            if (File.Exists(hostsPath))
+            {
+                string text = File.ReadAllText(hostsPath);
+                int start = text.IndexOf("# Discord Shield Managed Hosts");
+                if (start >= 0)
+                {
+                    int end = text.IndexOf("# End Discord Shield Managed Hosts");
+                    if (end >= 0) end += 34;
+                    else end = text.Length;
+                    string updated = text.Remove(start, end - start).TrimEnd();
+                    File.WriteAllText(hostsPath, string.IsNullOrEmpty(updated) ? string.Empty : updated + Environment.NewLine);
+                }
+            }
+        }
+        catch { }
+
         TryDeleteFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "Discord Shield.lnk"));
         TryDeleteFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonDesktopDirectory), "Discord Shield.lnk"));
         TryDeleteFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Startup), "Discord Shield.lnk"));

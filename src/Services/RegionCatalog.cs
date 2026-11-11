@@ -14,7 +14,7 @@ namespace DiscordTunnel.Services
 
         private const string EngineArguments = "-9 --fake-gen 10 --wrong-seq --wrong-chksum --reverse-frag -q --dns-addr 1.1.1.1 --dns-port 53 --blacklist discord-list.txt";
         private const string ProxyBase = "--oob 1 --tlsrec 1+s --split 1 --disorder 3+s --auto=torst,ssl_err -s 1 -d 3+s";
-        private const string ProxyFake = "--fake -1+s --fake-sni www.cloudflare.com -M h,d -p 1080";
+        private const string ProxyFake = "-K ipv4 --fake -1+s --fake-sni www.cloudflare.com -M h,d -p 1080";
 
         private static readonly HttpClient GeoClient = new() { Timeout = TimeSpan.FromSeconds(1.5) };
 

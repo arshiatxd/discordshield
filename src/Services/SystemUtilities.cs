@@ -23,10 +23,10 @@ namespace DiscordTunnel.Services
         private const string HostsFooter = "# End Discord Shield Managed Hosts";
         private const string HostsEntries =
             "# Discord Shield Managed Hosts\r\n" +
-            "162.159.137.232 discord.com www.discord.com canary.discord.com ptb.discord.com\r\n" +
-            "162.159.137.232 discord.gg www.discord.gg discordapp.com www.discordapp.com\r\n" +
-            "162.159.137.232 discordapp.net cdn.discordapp.com media.discordapp.net gateway.discord.gg\r\n" +
-            "162.159.137.232 latency.discord.media status.discord.com updates.discord.com dl.discordapp.net\r\n" +
+            "162.159.137.232 discord.com www.discord.com canary.discord.com ptb.discord.com streamkit.discord.com\r\n" +
+            "162.159.137.232 discord.gg www.discord.gg discordapp.com www.discordapp.com dis.gd inv.wtf\r\n" +
+            "162.159.137.232 discordapp.net cdn.discordapp.com media.discordapp.net gateway.discord.gg voice.discord.gg\r\n" +
+            "162.159.137.232 latency.discord.media status.discord.com updates.discord.com dl.discordapp.net support.discord.com\r\n" +
             "# End Discord Shield Managed Hosts";
 
         private static readonly string[] LegacyDohServers = { "1.1.1.1", "8.8.8.8", "1.0.0.1", "8.8.4.4" };
@@ -77,7 +77,7 @@ namespace DiscordTunnel.Services
                 if (current.Contains(HostsHeader, StringComparison.Ordinal)) return;
 
                 string updated = current.TrimEnd() + Environment.NewLine + Environment.NewLine + HostsEntries + Environment.NewLine;
-                File.WriteAllText(hostsPath, updated);
+                SafeWriteHosts(hostsPath, updated);
                 FlushDnsCache();
             }
             catch { }
@@ -99,10 +99,27 @@ namespace DiscordTunnel.Services
                 else end = current.Length;
 
                 string updated = current.Remove(start, end - start).TrimEnd();
-                File.WriteAllText(hostsPath, string.IsNullOrEmpty(updated) ? string.Empty : updated + Environment.NewLine);
+                SafeWriteHosts(hostsPath, string.IsNullOrEmpty(updated) ? string.Empty : updated + Environment.NewLine);
                 FlushDnsCache();
             }
             catch { }
+        }
+
+        private static void SafeWriteHosts(string path, string content)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                try
+                {
+                    File.WriteAllText(path, content);
+                    return;
+                }
+                catch (IOException)
+                {
+                    if (i == 3) throw;
+                    Thread.Sleep(60);
+                }
+            }
         }
 
         public static void EnableBrowserProxy()
