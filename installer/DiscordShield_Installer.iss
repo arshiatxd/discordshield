@@ -3,7 +3,9 @@
 #define MyAppPublisher "Discord Shield Contributors"
 #define MyAppURL "https://github.com/arshiatxd/discordshield"
 #define MyAppExeName "DiscordTunnel.exe"
-#define SourceDir "C:\Users\Parsian\Desktop\DiscordTunnelApp"
+#ifndef SourceDir
+#define SourceDir "..\publish"
+#endif
 
 [Setup]
 AppId={{5C849FA9-1E14-4B28-868C-BD9D0F32E2A8}
@@ -24,13 +26,13 @@ DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 DisableWelcomePage=no
-OutputDir=C:\Users\Parsian\Desktop
+OutputDir=..\releases
 OutputBaseFilename=Discord Shield Setup
-SetupIconFile=C:\Users\Parsian\Desktop\DiscordTunnel\app.ico
+SetupIconFile=..\src\app.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
 UninstallDisplayName={#MyAppName} v{#MyAppVersion}
-WizardImageFile=C:\Users\Parsian\Desktop\DiscordTunnel\wizard_banner.bmp
-WizardSmallImageFile=C:\Users\Parsian\Desktop\DiscordTunnel\wizard_small.bmp
+WizardImageFile=wizard_banner.bmp
+WizardSmallImageFile=wizard_small.bmp
 WizardImageStretch=yes
 WizardSizePercent=105,105
 Compression=lzma2/normal
