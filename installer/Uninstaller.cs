@@ -55,7 +55,6 @@ internal static class Program
         KillProcess("ciadpi");
         KillProcess("goodbyedpi");
         StopService("WinDivert");
-        CleanupDiscordBridge();
         CleanupRegistryAndShortcuts();
 
         MessageBoxW(
@@ -109,32 +108,6 @@ internal static class Program
         catch { }
     }
 
-    private static void CleanupDiscordBridge()
-    {
-        try
-        {
-            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            foreach (string flavor in new string[] { "Discord", "DiscordPTB", "DiscordCanary" })
-            {
-                string basePath = Path.Combine(localAppData, flavor);
-                if (!Directory.Exists(basePath)) continue;
-
-                foreach (string appDir in Directory.GetDirectories(basePath, "app-*"))
-                {
-                    TryDeleteFile(Path.Combine(appDir, "drover.ini"));
-                    TryDeleteFile(Path.Combine(appDir, "version.dll"));
-                }
-            }
-
-            string appDataCore = Path.Combine(localAppData, "DiscordTunnel");
-            if (Directory.Exists(appDataCore))
-            {
-                try { Directory.Delete(appDataCore, true); } catch { }
-            }
-        }
-        catch { }
-    }
-
     private static void CleanupRegistryAndShortcuts()
     {
         try
@@ -153,6 +126,12 @@ internal static class Program
         if (Directory.Exists(groupDir))
         {
             try { Directory.Delete(groupDir, true); } catch { }
+        }
+
+        string appDataCore = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DiscordTunnel");
+        if (Directory.Exists(appDataCore))
+        {
+            try { Directory.Delete(appDataCore, true); } catch { }
         }
     }
 

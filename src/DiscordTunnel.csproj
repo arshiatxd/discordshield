@@ -13,10 +13,6 @@
     <AssemblyVersion>1.0.1.0</AssemblyVersion>
     <FileVersion>1.0.1.0</FileVersion>
     <Product>Discord Shield</Product>
-    <Company>Discord Shield Project</Company>
-    <Authors>Discord Shield Project</Authors>
-    <Description>Discord Shield - High-Performance Discord Connection Optimizer</Description>
-    <Copyright>Copyright (C) 2026 Discord Shield Project</Copyright>
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
@@ -25,6 +21,7 @@
     <Resource Include="app_logo.png" />
     <Resource Include="app.ico" />
     <Resource Include="flag_ir.png" />
+    <EmbeddedResource Include="Core\**\*" />
     <None Update="Core\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

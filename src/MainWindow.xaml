@@ -97,13 +97,13 @@
             <Setter Property="Foreground" Value="#949BA4"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Width" Value="32"/>
+            <Setter Property="Width" Value="30"/>
             <Setter Property="Height" Value="28"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="bg" Background="{TemplateBinding Background}" CornerRadius="10">
+                        <Border x:Name="bg" Background="{TemplateBinding Background}" CornerRadius="8">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -121,7 +121,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="bg" Background="{TemplateBinding Background}" CornerRadius="10">
+                        <Border x:Name="bg" Background="{TemplateBinding Background}" CornerRadius="8">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -204,6 +204,15 @@
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <Border Width="24" Height="16" CornerRadius="3" Margin="0,0,10,0" ClipToBounds="True" BorderBrush="#25FFFFFF" BorderThickness="0.5">
                     <Grid>
+                        <Grid x:Name="FlagAuto" Visibility="Collapsed" Background="#4F46E5">
+                            <Path HorizontalAlignment="Center" VerticalAlignment="Center" Width="9" Height="12" Stretch="Uniform" Fill="#FEE75C"
+                                  Data="M 7 0 L 0 8 L 5 8 L 3 14 L 10 6 L 5 6 Z"/>
+                        </Grid>
+
+                        <Grid x:Name="FlagIR" Visibility="Collapsed">
+                            <Image Source="flag_ir.png" Width="24" Height="16" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </Grid>
+
                         <Canvas x:Name="FlagTR" Visibility="Collapsed" Width="24" Height="16" Background="#E30A17">
                             <Ellipse Canvas.Left="5" Canvas.Top="2.5" Width="11" Height="11" Fill="#FFFFFF"/>
                             <Ellipse Canvas.Left="7.5" Canvas.Top="3.5" Width="9" Height="9" Fill="#E30A17"/>
@@ -220,10 +229,6 @@
                             <Border Grid.Row="0" Background="#FFFFFF"/>
                             <Border Grid.Row="1" Background="#0039A6"/>
                             <Border Grid.Row="2" Background="#D52B1E"/>
-                        </Grid>
-
-                        <Grid x:Name="FlagIR" Visibility="Collapsed">
-                            <Image Source="pack://application:,,,/flag_ir.png" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Fill"/>
                         </Grid>
 
                         <Grid x:Name="FlagAE" Visibility="Collapsed">
@@ -244,47 +249,32 @@
                             </Grid>
                         </Grid>
 
-                        <Grid x:Name="FlagGL" Visibility="Collapsed" Background="#2B2D31">
-                            <Viewbox Width="12" Height="12" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <Canvas Width="20" Height="20">
-                                    <Ellipse Canvas.Left="2" Canvas.Top="2" Width="16" Height="16" Stroke="#949BA4" StrokeThickness="1.5" Fill="#1E1F22"/>
-                                    <Ellipse Canvas.Left="6" Canvas.Top="2" Width="8" Height="16" Stroke="#949BA4" StrokeThickness="1.2" Fill="Transparent"/>
-                                    <Line X1="2" Y1="10" X2="18" Y2="10" Stroke="#949BA4" StrokeThickness="1.2"/>
-                                    <Line X1="3.5" Y1="6" X2="16.5" Y2="6" Stroke="#949BA4" StrokeThickness="1"/>
-                                    <Line X1="3.5" Y1="14" X2="16.5" Y2="14" Stroke="#949BA4" StrokeThickness="1"/>
-                                </Canvas>
-                            </Viewbox>
-                        </Grid>
-
-                        <Grid x:Name="FlagAuto" Visibility="Collapsed" Background="#4F46E5">
-                            <Viewbox Width="11" Height="11" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <Canvas Width="16" Height="16">
-                                    <Path Data="M 9.5,1.5 L 4.5,8.5 L 8.5,8.5 L 6.5,14.5 L 12.5,7.5 L 8.5,7.5 Z" Fill="#FEE75C"/>
-                                </Canvas>
-                            </Viewbox>
+                        <Grid x:Name="FlagGL" Visibility="Collapsed" Background="#35373C">
+                            <Path HorizontalAlignment="Center" VerticalAlignment="Center" Width="12" Height="12" Stretch="Uniform" Fill="#DBDEE1"
+                                  Data="M 12 2 C 6.48 2 2 6.48 2 12 C 2 17.52 6.48 22 12 22 C 17.52 22 22 17.52 22 12 C 22 6.48 17.52 2 12 2 Z M 11 4.07 C 7.95 4.54 5.5 6.99 5.07 10 L 8.1 10 C 8.45 7.4 9.47 5.18 11 4.07 Z M 13 4.07 C 14.53 5.18 15.55 7.4 15.9 10 L 18.93 10 C 18.5 6.99 16.05 4.54 13 4.07 Z M 4.07 12 C 4.07 11.32 4.14 10.65 4.28 10 L 7.09 10 C 7.03 10.65 7 11.32 7 12 C 7 12.68 7.03 13.35 7.09 14 L 4.28 14 C 4.14 13.35 4.07 12.68 4.07 12 Z M 5.07 14 C 5.5 17.01 7.95 19.46 11 19.93 C 9.47 18.82 8.45 16.6 8.1 14 L 5.07 14 Z M 13 19.93 C 16.05 19.46 18.5 17.01 18.93 14 L 15.9 14 C 15.55 16.6 14.53 18.82 13 19.93 Z M 10.1 14 C 10.16 15.4 10.42 16.8 11 17.8 C 11.58 16.8 11.84 15.4 11.9 14 L 10.1 14 Z M 9.9 12 C 9.9 11.33 9.93 10.66 10 10 L 14 10 C 14.07 10.66 14.1 11.33 14.1 12 C 14.1 12.67 14.07 13.34 14 14 L 10 14 C 9.93 13.34 9.9 12.67 9.9 12 Z M 10.1 10 L 11.9 10 C 11.84 8.6 11.58 7.2 11 6.2 C 10.42 7.2 10.16 8.6 10.1 10 Z"/>
                         </Grid>
                     </Grid>
                 </Border>
                 <TextBlock Text="{Binding Name}" VerticalAlignment="Center" FontWeight="SemiBold"/>
             </StackPanel>
             <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Code}" Value="AUTO">
+                    <Setter TargetName="FlagAuto" Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Code}" Value="IR">
+                    <Setter TargetName="FlagIR" Property="Visibility" Value="Visible"/>
+                </DataTrigger>
                 <DataTrigger Binding="{Binding Code}" Value="TR">
                     <Setter TargetName="FlagTR" Property="Visibility" Value="Visible"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Code}" Value="RU">
                     <Setter TargetName="FlagRU" Property="Visibility" Value="Visible"/>
                 </DataTrigger>
-                <DataTrigger Binding="{Binding Code}" Value="IR">
-                    <Setter TargetName="FlagIR" Property="Visibility" Value="Visible"/>
-                </DataTrigger>
                 <DataTrigger Binding="{Binding Code}" Value="AE">
                     <Setter TargetName="FlagAE" Property="Visibility" Value="Visible"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Code}" Value="GL">
                     <Setter TargetName="FlagGL" Property="Visibility" Value="Visible"/>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding Code}" Value="AUTO">
-                    <Setter TargetName="FlagAuto" Property="Visibility" Value="Visible"/>
                 </DataTrigger>
             </DataTemplate.Triggers>
         </DataTemplate>
@@ -410,7 +400,7 @@
                         <RowDefinition Height="52"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="64"/>
-                        <RowDefinition Height="36"/>
+                        <RowDefinition Height="38"/>
                         <RowDefinition Height="64"/>
                     </Grid.RowDefinitions>
 
@@ -428,15 +418,9 @@
                                 </StackPanel>
                             </Border>
 
-                            <Button x:Name="MenuBtn" Style="{StaticResource WindowCtrlBtn}" Click="MenuBtn_Click" Content="..." FontSize="13" FontWeight="Bold" Margin="0,0,4,0">
-                                <Button.ContextMenu>
-                                    <ContextMenu Background="#1E1F22" BorderBrush="#35373C" BorderThickness="1">
-                                        <MenuItem Header="Privacy Policy" Click="OpenPrivacyPolicy_Click" Foreground="#DBDEE1" FontSize="12"/>
-                                    </ContextMenu>
-                                </Button.ContextMenu>
-                            </Button>
-                            <Button Style="{StaticResource WindowCtrlBtn}" Click="MinimizeBtn_Click" Content="-" Margin="0,0,4,0"/>
-                            <Button Style="{StaticResource CloseCtrlBtn}" Click="CloseBtn_Click" Content="X"/>
+                            <Button x:Name="MenuBtn" Style="{StaticResource WindowCtrlBtn}" Click="MenuBtn_Click" Content="⋮" FontSize="14" Margin="0,0,3,0"/>
+                            <Button Style="{StaticResource WindowCtrlBtn}" Click="MinimizeBtn_Click" Content="─" Margin="0,0,3,0"/>
+                            <Button Style="{StaticResource CloseCtrlBtn}" Click="CloseBtn_Click" Content="✕"/>
                         </StackPanel>
                     </Grid>
 
@@ -444,65 +428,65 @@
                         <Grid Width="240" Height="190" HorizontalAlignment="Center" Margin="0,-6,0,-4">
                             <Ellipse x:Name="LockGlow" Width="240" Height="240" HorizontalAlignment="Center" VerticalAlignment="Center"
                                      Opacity="0" RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False">
-                                <Ellipse.RenderTransform>
-                                    <ScaleTransform x:Name="LockGlowScale" ScaleX="1" ScaleY="1"/>
-                                </Ellipse.RenderTransform>
                                 <Ellipse.Fill>
                                     <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
-                                        <GradientStop Color="#4C5865F2" Offset="0.0"/>
-                                        <GradientStop Color="#225865F2" Offset="0.45"/>
-                                        <GradientStop Color="#005865F2" Offset="1.0"/>
+                                        <GradientStop Color="#77818CF8" Offset="0.0"/>
+                                        <GradientStop Color="#386366F1" Offset="0.45"/>
+                                        <GradientStop Color="#006366F1" Offset="1.0"/>
                                     </RadialGradientBrush>
                                 </Ellipse.Fill>
                             </Ellipse>
 
-                            <Viewbox Width="124" Height="156" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <Canvas Width="100" Height="124">
-                                    <Path x:Name="ShacklePath"
-                                          Data="M 32 62 L 32 30 C 32 14.5 40 4 50 4 C 60 4 68 14.5 68 30 L 68 62"
-                                          Stroke="{StaticResource ShackleMetal}"
-                                          StrokeThickness="12"
-                                          StrokeStartLineCap="Round"
-                                          StrokeEndLineCap="Round"
-                                          RenderTransformOrigin="0.32, 0.48">
-                                        <Path.RenderTransform>
+                            <Viewbox Width="175" Height="175" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Canvas Width="512" Height="512">
+                                    <Canvas x:Name="ShackleGroup">
+                                        <Canvas.RenderTransform>
                                             <TransformGroup>
-                                                <TranslateTransform x:Name="ShackleTranslate" X="0" Y="-14"/>
-                                                <RotateTransform x:Name="ShackleRotate" Angle="-22"/>
+                                                <TranslateTransform x:Name="ShackleTranslate" X="0" Y="0"/>
+                                                <RotateTransform x:Name="ShackleRotate" Angle="0" CenterX="352" CenterY="245"/>
                                             </TransformGroup>
-                                        </Path.RenderTransform>
-                                        <Path.Effect>
-                                            <DropShadowEffect BlurRadius="12" ShadowDepth="4" Opacity="0.5" Color="#000000"/>
-                                        </Path.Effect>
-                                    </Path>
+                                        </Canvas.RenderTransform>
 
-                                    <Border Canvas.Left="12" Canvas.Top="48" Width="76" Height="68"
-                                            CornerRadius="18"
-                                            Background="{StaticResource GreyLockBodyGradient}"
-                                            BorderBrush="#40FFFFFF"
-                                            BorderThickness="1"
-                                            RenderTransformOrigin="0.5,0.5"
-                                            x:Name="LockBodyBorder">
-                                        <Border.RenderTransform>
-                                            <ScaleTransform x:Name="LockBodyScale" ScaleX="1" ScaleY="1"/>
-                                        </Border.RenderTransform>
+                                        <Path Data="M 160 245 L 160 135 C 160 55, 352 55, 352 135 L 352 245"
+                                              Fill="{x:Null}"
+                                              Stroke="{StaticResource ShackleMetal}"
+                                              StrokeThickness="38"
+                                              StrokeStartLineCap="Round"
+                                              StrokeEndLineCap="Round"
+                                              StrokeLineJoin="Round">
+                                            <Path.Effect>
+                                                <DropShadowEffect BlurRadius="14" ShadowDepth="6" Color="#000000" Opacity="0.40"/>
+                                            </Path.Effect>
+                                        </Path>
+
+                                        <Path Data="M 168 245 L 168 135 C 168 67, 344 67, 344 135 L 344 245"
+                                              Fill="{x:Null}"
+                                              Stroke="#FFFFFF"
+                                              StrokeThickness="8"
+                                              StrokeStartLineCap="Round"
+                                              Opacity="0.72"/>
+
+                                        <Rectangle Canvas.Left="145" Canvas.Top="228" Width="22" Height="6" RadiusX="2" RadiusY="2" Fill="#475569"/>
+                                    </Canvas>
+
+                                    <Ellipse Canvas.Left="140" Canvas.Top="227" Width="40" Height="16" Fill="#141518" Opacity="0.92"/>
+                                    <Ellipse Canvas.Left="332" Canvas.Top="227" Width="40" Height="16" Fill="#141518" Opacity="0.92"/>
+
+                                    <Border x:Name="LockBodyBorder" Canvas.Left="106" Canvas.Top="215" Width="300" Height="240"
+                                            CornerRadius="46" Background="{StaticResource GreyLockBodyGradient}"
+                                            BorderBrush="#4E5058" BorderThickness="1.8">
                                         <Border.Effect>
-                                            <DropShadowEffect BlurRadius="20" ShadowDepth="7" Opacity="0.55" Color="#000000"/>
+                                            <DropShadowEffect BlurRadius="26" ShadowDepth="9" Color="#000000" Opacity="0.48"/>
                                         </Border.Effect>
-                                        <Grid>
-                                            <Border Height="1.5" VerticalAlignment="Top" Margin="14,1,14,0" Background="{StaticResource BevelHighlight}" CornerRadius="1"/>
 
-                                            <Viewbox Width="36" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-4,0,0">
-                                                <Path x:Name="DiscordEmblem"
-                                                      RenderTransformOrigin="0.5,0.5"
-                                                      Data="M 19.3 3.0 C 17.8 2.3 16.2 1.8 14.6 1.5 C 14.4 1.9 14.2 2.3 14.0 2.8 C 12.3 2.5 10.6 2.5 8.9 2.8 C 8.7 2.3 8.5 1.9 8.3 1.5 C 6.7 1.8 5.1 2.3 3.6 3.0 C 0.6 7.5 -0.2 11.9 0.1 16.2 C 2.1 17.7 4.0 18.6 5.9 19.2 C 6.4 18.5 6.8 17.8 7.2 17.0 C 6.5 16.8 5.9 16.4 5.3 16.0 C 5.4 15.9 5.6 15.7 5.7 15.6 C 9.4 17.3 13.5 17.3 17.2 15.6 C 17.3 15.7 17.5 15.9 17.6 16.0 C 17.0 16.4 16.4 16.8 15.7 17.0 C 16.1 17.8 16.5 18.5 17.0 19.2 C 18.9 18.6 20.8 17.7 22.8 16.2 C 23.3 11.2 21.9 6.8 19.3 3.0 Z M 7.7 13.7 C 6.6 13.7 5.7 12.7 5.7 11.4 C 5.7 10.2 6.6 9.2 7.7 9.2 C 8.8 9.2 9.7 10.2 9.7 11.4 C 9.7 12.7 8.8 13.7 7.7 13.7 Z M 15.2 13.7 C 14.1 13.7 13.2 12.7 13.2 11.4 C 13.2 10.2 14.1 9.2 15.2 9.2 C 16.3 9.2 17.2 10.2 17.2 11.4 C 17.2 12.7 16.3 13.7 15.2 13.7 Z"
-                                                      Fill="#FFFFFF"
-                                                      Opacity="0.95">
-                                                    <Path.RenderTransform>
-                                                        <ScaleTransform x:Name="LogoEmblemScale" ScaleX="1" ScaleY="1"/>
-                                                    </Path.RenderTransform>
+                                        <Grid>
+                                            <Border Height="3" VerticalAlignment="Top" Margin="28,2,28,0" Background="{StaticResource BevelHighlight}" CornerRadius="1.5"/>
+
+                                            <Viewbox Width="150" Height="110" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,10">
+                                                <Path Fill="#FFFFFF"
+                                                      Data="M19.3 4.3C17.8 3.6 16.3 3.1 14.7 2.8C14.5 3.2 14.3 3.7 14.1 4.1C12.4 3.8 10.7 3.8 9 4.1C8.8 3.7 8.6 3.2 8.4 2.8C6.8 3.1 5.3 3.6 3.8 4.3C0.9 8.7 0.1 13 0.5 17.2C2.4 18.6 4.3 19.5 6.1 20C6.6 19.4 7 18.7 7.3 18C6.6 17.7 6 17.4 5.4 17C5.6 16.9 5.7 16.7 5.9 16.6C9.5 18.2 13.6 18.2 17.1 16.6C17.3 16.8 17.4 16.9 17.6 17C17 17.4 16.4 17.7 15.7 18C16.1 18.7 16.5 19.4 16.9 20C18.8 19.5 20.7 18.6 22.6 17.2C23.1 12.3 21.8 8 19.3 4.3ZM7.9 14.6C6.8 14.6 5.9 13.6 5.9 12.4C5.9 11.2 6.8 10.2 7.9 10.2C9 10.2 9.9 11.2 9.9 12.4C9.9 13.6 9 14.6 7.9 14.6ZM15.2 14.6C14.1 14.6 13.2 13.6 13.2 12.4C13.2 11.2 14.1 10.2 15.2 10.2C16.3 10.2 17.2 11.2 17.2 12.4C17.2 13.6 16.3 14.6 15.2 14.6Z">
                                                     <Path.Effect>
-                                                        <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.3" Color="#000000"/>
+                                                        <DropShadowEffect BlurRadius="10" ShadowDepth="3" Color="#000000" Opacity="0.35"/>
                                                     </Path.Effect>
                                                 </Path>
                                             </Viewbox>
@@ -527,7 +511,11 @@
                                   SelectionChanged="RegionCombo_SelectionChanged"/>
 
                         <Border x:Name="SecurityPill" Visibility="Collapsed" Background="#33000000" BorderBrush="#28FFFFFF" BorderThickness="1" CornerRadius="12" Padding="12,4" Margin="0,8,0,0" HorizontalAlignment="Center">
-                            <TextBlock x:Name="SecurityPillText" Text="Protected Route" Foreground="#E3E5E8" FontSize="11" FontWeight="Medium" VerticalAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Path x:Name="SecurityPillIcon" Width="10" Height="11" Stretch="Uniform" Fill="#5865F2" Margin="0,0,6,0" VerticalAlignment="Center"
+                                      Data="M 6 0 L 0 2.5 L 0 6.5 C 0 10 3 12.5 6 13.5 C 9 12.5 12 10 12 6.5 L 12 2.5 Z"/>
+                                <TextBlock x:Name="SecurityPillText" Text="Protected Tunnel" Foreground="#E3E5E8" FontSize="11" FontWeight="Medium" VerticalAlignment="Center"/>
+                            </StackPanel>
                         </Border>
                     </StackPanel>
 
@@ -541,7 +529,7 @@
                     </Grid>
 
                     <Grid Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="24,0,24,2">
-                        <TextBlock Text="Starting Discord may take a few tries to connect. Closing and reopening Discord may also solve the issue."
+                        <TextBlock Text="Starting Discord may take a few tries to connect. If it fails, try closing and reopening Discord completely."
                                    Foreground="#8E9297" FontSize="10.5" TextWrapping="Wrap" TextAlignment="Center" LineHeight="14"/>
                     </Grid>
 
@@ -557,42 +545,26 @@
                     </Grid>
                 </Grid>
 
-                <Grid x:Name="PrivacyOverlay" Visibility="Collapsed" Background="#F2111215">
-                    <Grid Margin="26,24,26,24">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
+                <Grid x:Name="PrivacyModal" Visibility="Collapsed" Background="#D00A0B0E" MouseDown="PrivacyModal_BackgroundMouseDown">
+                    <Border Width="308" Background="#1E1F22" CornerRadius="20" BorderBrush="#35373C" BorderThickness="1" Padding="20,18,20,18" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="24" ShadowDepth="8" Opacity="0.6" Color="#000000"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock Text="Privacy Policy" Foreground="#F2F3F5" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+                            <TextBlock Text="Discord Shield operates entirely on your local computer." Foreground="#DBDEE1" FontSize="11.5" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <TextBlock Text="• Zero Data Collection: Your personal information, Discord account credentials, messages, and browsing activity are never collected, logged, or monitored."
+                                       Foreground="#949BA4" FontSize="11" TextWrapping="Wrap" LineHeight="16" Margin="0,0,0,8"/>
+                            <TextBlock Text="• Local In-Memory Processing: All packet desynchronization and bypass logic occur strictly in local computer memory without any intermediate VPN server or cloud relay."
+                                       Foreground="#949BA4" FontSize="11" TextWrapping="Wrap" LineHeight="16" Margin="0,0,0,8"/>
+                            <TextBlock Text="• No Remote Telemetry: The software contains zero analytics trackers, telemetry beacons, or external reporting servers."
+                                       Foreground="#949BA4" FontSize="11" TextWrapping="Wrap" LineHeight="16" Margin="0,0,0,8"/>
+                            <TextBlock Text="• Fully Open Source: The source code is publicly accessible on GitHub for independent security verification and auditing."
+                                       Foreground="#949BA4" FontSize="11" TextWrapping="Wrap" LineHeight="16" Margin="0,0,0,16"/>
 
-                        <TextBlock Grid.Row="0" Text="Privacy Policy" Foreground="#FFFFFF" FontSize="16" FontWeight="Bold" Margin="0,0,0,16"/>
-
-                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" SnapsToDevicePixels="True" Margin="0,0,0,16">
-                            <StackPanel>
-                                <TextBlock Text="Discord Shield operates entirely on your local computer."
-                                           Foreground="#F2F3F5" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,14"/>
-
-                                <TextBlock Text="Local Operation" Foreground="#DBDEE1" FontSize="12" FontWeight="Bold" Margin="0,0,0,4"/>
-                                <TextBlock Text="Packet desynchronization occurs directly on your machine. Discord connects directly to Discord servers without passing through external proxy or VPN servers."
-                                           Foreground="#949BA4" FontSize="11" TextWrapping="Wrap" LineHeight="16" Margin="0,0,0,14"/>
-
-                                <TextBlock Text="Zero Data Collection" Foreground="#DBDEE1" FontSize="12" FontWeight="Bold" Margin="0,0,0,4"/>
-                                <TextBlock Text="The application does not collect, log, store, or transmit any user credentials, tokens, messages, voice data, or personal details."
-                                           Foreground="#949BA4" FontSize="11" TextWrapping="Wrap" LineHeight="16" Margin="0,0,0,14"/>
-
-                                <TextBlock Text="No Telemetry or Tracking" Foreground="#DBDEE1" FontSize="12" FontWeight="Bold" Margin="0,0,0,4"/>
-                                <TextBlock Text="There is no analytics tracking, remote reporting, or telemetry integrated into this application."
-                                           Foreground="#949BA4" FontSize="11" TextWrapping="Wrap" LineHeight="16" Margin="0,0,0,14"/>
-
-                                <TextBlock Text="Open Source Verification" Foreground="#DBDEE1" FontSize="12" FontWeight="Bold" Margin="0,0,0,4"/>
-                                <TextBlock Text="All source code is publicly auditable on GitHub at github.com/arshiatxd/discordshield."
-                                           Foreground="#949BA4" FontSize="11" TextWrapping="Wrap" LineHeight="16"/>
-                            </StackPanel>
-                        </ScrollViewer>
-
-                        <Button Grid.Row="2" Click="ClosePrivacyPolicy_Click" Style="{StaticResource DiscordPillButtonStyle}"
-                                Width="140" Height="36" Content="Close" Background="{StaticResource ButtonIdleGradient}" FontSize="12"/>
-                    </Grid>
+                            <Button Style="{StaticResource DiscordPillButtonStyle}" Click="PrivacyCloseBtn_Click" Content="Close" Height="36" FontSize="13" Background="{StaticResource ButtonIdleGradient}"/>
+                        </StackPanel>
+                    </Border>
                 </Grid>
             </Grid>
         </Border>

@@ -5,105 +5,115 @@
 <h1 align="center">Discord Shield</h1>
 
 <p align="center">
-  High-Performance DPI Evasion and Connection Optimizer for Discord
+  Zero-Trust Dual-Layer DPI Evasion and Encrypted Tunnel for Discord
 </p>
 
 ---
 
-Discord Shield is a lightweight, open-source Windows utility engineered to restore stable, low-latency connectivity to Discord across networks with stateful Deep Packet Inspection (DPI), DNS interference, and TLS Server Name Indication (SNI) filtering.
+Discord Shield is a lightweight, open-source Windows application engineered to restore reliable, low-latency connectivity to Discord across regions with stateful Deep Packet Inspection (DPI), DNS manipulation, and TLS Server Name Indication (SNI) censorship.
 
-Unlike VPN services that route all device traffic through distant third-party servers, Discord Shield works entirely locally. It desynchronizes packet headers, fragments TLS ClientHello handshakes, and safeguards DNS resolution so that Discord traffic connects directly to Discord infrastructure with minimal latency and zero data collection.
+Unlike traditional VPN solutions that route all operating system traffic through remote proxy servers, Discord Shield functions entirely on your local machine. It neutralizes censorship filters by desynchronizing TCP packet headers, splitting TLS ClientHello handshakes, and bypassing deep packet inspection middleboxes without third-party data collection, accounts, or external proxy latency.
 
 ---
 
 ## Technical Overview
 
-Discord Shield combines dual-layer network desynchronization designed for Discord desktop architecture and Cloudflare edge networks:
+Discord Shield deploys an advanced local evasion stack tailored specifically for Discord's desktop architecture and Cloudflare edge infrastructure:
 
-1. **Application-Level TLS Record Fragmentation**
-   Splits the TLS handshake ClientHello message right before the SNI hostname field. Middlebox inspection filters cannot identify the target domain and allow the connection, while Discord edge servers recombine the segments transparently.
+1. **Application-Level TLS Record Splitting and Fake SNI Desynchronization**
+   The evasion engine segments outgoing TLS handshakes targeted at Discord endpoints (`discord.com`, `gateway.discord.gg`, `cdn.discordapp.com`). By fragmenting the `ClientHello` message across multiple records and injecting out-of-band fake SNI indicators, censorship middleboxes fail to reconstruct the forbidden hostname, allowing the encrypted stream to pass unobstructed.
 
 2. **Kernel-Level Packet Desynchronization**
-   Applies sequence number desynchronization, reversed TCP segmentation, and unencrypted QUIC/HTTP3 suppression to prevent middlebox connection resets (TCP RST).
+   A dedicated local packet filter driver analyzes outbound Discord packets in real-time. It suppresses blocked HTTP/3 (QUIC) attempts, drops censorship-injected TCP RST flags, and desynchronizes packet sequence numbers to prevent stateful tracking by hardware firewalls.
 
-3. **Resilient DNS Architecture**
-   Provides automated DNS optimization with UDP fallback support, preventing hangs when custom DNS servers (such as Google 8.8.8.8 or Cloudflare 1.1.1.1) or ISP resolvers are configured on the system.
+3. **Universal DNS Resolver Compatibility**
+   Discord Shield operates seamlessly alongside any existing system DNS configuration. Users with custom resolvers (such as Cloudflare `1.1.1.1`, Google `8.8.8.8`, Quad9 `9.9.9.9`, or standard ISP DNS) will not experience query stalling or handshake timeouts. Discord Gateway endpoints are validated directly against verified Cloudflare Anycast edge IP ranges.
 
-4. **100% Local and Private**
-   Operates entirely on the local network stack. Contains no analytics, background tracking, telemetry, or external proxies.
+4. **100% Local and Zero-Trust Execution**
+   All filtering and packet manipulation take place directly within system memory. No user credentials, tokens, voice packets, or text messages are ever redirected, intercepted, or transmitted to remote servers.
 
 ---
 
 ## Supported Regions and Network Operators
 
-Discord Shield provides dedicated desynchronization profiles optimized for telecommunications operators and inspection equipment:
+Discord Shield includes targeted desynchronization profiles optimized for the inspection equipment deployed across major telecommunications providers:
 
 ### Iran
 - **Supported Operators:**
-  - Shatel (ADSL, VDSL, Fiber)
-  - Asiatech (ADSL, Wireless)
-  - Zitel (TD-LTE)
+  - Shatel
+  - Asiatech
+  - Zitel
   - Pars Online
-  - Rightel (Mobile 3G/4G/LTE)
+  - Rightel
   - Sabanet
   - Pishgaman
   - Hi-Web
-  - Hamrah-e Aval / MCI (Mobile 4G/5G)
-  - Irancell (Mobile & TD-LTE)
+  - Hamrah-e Aval (MCI)
+  - Irancell (MTN)
   - Telecommunication Company of Iran (TCI / Mokhaberat)
-- **Inspection Characteristics:** Out-of-band (OOB) TCP desynchronization, Cloudflare-fronted SNI evasion, and multi-vector fragmentation to circumvent stateful filtering and DNS poisoning.
+- **Inspection Characteristics:** Employs out-of-band (OOB) TCP segmentation, reverse packet fragmentation, and fake SNI injection to neutralize stateful DPI filtering. Fully compatible with both cellular LTE and fixed broadband infrastructure.
 
 ### United Arab Emirates and Middle East
 - **Supported Operators:**
   - Etisalat (e&)
   - du (Emirates Integrated Telecommunications Company)
-  - STC (Saudi Telecom Company)
+  - Saudi Telecom Company (STC)
   - Ooredoo
   - Omantel
   - Zain
-- **Inspection Characteristics:** Bypasses VoIP, WebRTC signaling restrictions, and SNI inspection blocks.
+- **Inspection Characteristics:** Overcomes VoIP throttling, WebRTC gateway blocks, and SNI domain restrictions across regional telecom networks.
 
 ### Turkey
 - **Supported Operators:**
   - Turk Telekom (Fixed Broadband and Mobile)
   - Turkcell / Superonline (Fiber and LTE)
-  - Vodafone Turkey (Fixed and Mobile)
+  - Vodafone Turkey
   - Turksat Kablonet
-- **Inspection Characteristics:** Counteracts BTK domain blocking, DNS manipulation, and TCP resets.
+- **Inspection Characteristics:** Bypasses BTK-mandated domain blocks, DNS redirection, and stateful TCP resets.
 
 ### Russia
 - **Supported Operators:**
   - Rostelecom
-  - MTS
-  - Beeline
+  - MTS (Mobile TeleSystems)
+  - Beeline (PJSC VimpelCom)
   - MegaFon
   - ER-Telecom (Dom.ru)
   - Tele2 Russia
-- **Inspection Characteristics:** Bypasses RKN TSPU inspection filters via dynamic TTL calculation and reverse packet segmentation.
+- **Inspection Characteristics:** Bypasses RKN TSPU hardware filters using dynamic TTL shielding and out-of-order TCP record delivery.
 
-### Global / Auto
-- Automatically tests available profiles against Discord Gateway endpoints and selects the fastest, working route. Defaults to Auto on initial launch.
+### Global / Auto-Detect
+- Features automatic multi-profile verification against the live Discord Gateway API (`https://discord.com/api/v9/gateway`). Activates the most responsive verified profile for restricted school, university, enterprise, and public Wi-Fi networks.
 
 ---
 
 ## Installation
 
-Download and run `Discord Shield Setup.exe` from the latest release. The setup wizard installs all necessary components and creates desktop and start menu shortcuts.
+Download and run `Discord Shield Setup.exe` from the latest release. Administrator privileges are required during setup to configure the local packet filter driver.
 
 ---
 
 ## Uninstallation
 
-Discord Shield can be removed cleanly at any time:
-- **Via Windows Settings:** Open Apps & Features, search for **Discord Shield**, and click **Uninstall**.
-- **Via Installation Folder:** Run `Uninstall Discord Shield.exe` located directly in the program directory.
+Discord Shield provides clean, single-click uninstallation:
+- **Via Windows Settings:** Open Windows Installed Apps, search for **Discord Shield**, and click **Uninstall**.
+- **Via Installation Folder:** Execute `Uninstall Discord Shield.exe` located directly in the installation directory (`%ProgramFiles%\Discord Shield`).
 
-The uninstaller stops running engines, unloads filter drivers, removes program files, and cleans registry entries.
+The uninstallation process stops active background services, safely unloads the kernel filter driver, and removes all program files and configuration keys.
 
 ---
 
-## License
+## Privacy Policy
+
+Discord Shield operates entirely on the user's local machine:
+- **No Data Collection:** Personal data, account tokens, chat history, and voice streams are never collected, logged, or monitored.
+- **Local In-Memory Operation:** Packet desynchronization occurs entirely in local system memory without intermediary servers or remote relays.
+- **No Telemetry:** The application contains zero analytics beacons, telemetry frameworks, or external trackers.
+- **Open Source:** Full source code is open and verifiable under the MIT license.
+
+---
+
+## Copyright and License
 
 Copyright (c) 2026 Discord Shield Contributors. All rights reserved.
 
-Released under the [MIT License](LICENSE).
+This software is released under the terms of the [MIT License](LICENSE). Embedded drivers and circumvention components retain their respective upstream licenses.

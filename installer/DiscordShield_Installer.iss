@@ -17,14 +17,13 @@ AppUpdatesURL={#MyAppURL}
 VersionInfoVersion=1.0.1.0
 VersionInfoProductName={#MyAppName}
 VersionInfoProductVersion=1.0.1
-VersionInfoCompany={#MyAppPublisher}
 VersionInfoDescription={#MyAppName} v{#MyAppVersion} Setup Wizard
 VersionInfoCopyright=Copyright (C) 2026 {#MyAppPublisher}
 DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 DisableWelcomePage=no
-OutputDir=C:\Users\Parsian\Desktop
+OutputDir=..\releases
 OutputBaseFilename=Discord Shield Setup
 SetupIconFile=C:\Users\Parsian\Desktop\DiscordTunnel\app.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
@@ -34,7 +33,7 @@ WizardSmallImageFile=C:\Users\Parsian\Desktop\DiscordTunnel\wizard_small.bmp
 WizardImageStretch=yes
 WizardSizePercent=105,105
 Compression=lzma2/max
-SolidCompression=no
+SolidCompression=yes
 WizardStyle=modern
 PrivilegesRequired=admin
 ArchitecturesInstallIn64BitMode=x64compatible
@@ -47,9 +46,9 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Messages]
 SetupWindowTitle=Setup - {#MyAppName} v{#MyAppVersion}
 WelcomeLabel1=Welcome to the {#MyAppName} v{#MyAppVersion} Setup Wizard
-WelcomeLabel2=This wizard will install {#MyAppName} v{#MyAppVersion} on your computer.%n%n{#MyAppName} provides a high-performance DPI bypass and connection optimizer engineered to restore instant, low-latency Discord connectivity across restricted networks (Iran, Turkey, Russia, UAE, and Global routes).%n%nClick Next to continue.
+WelcomeLabel2=This wizard will install {#MyAppName} v{#MyAppVersion} on your computer.%n%n{#MyAppName} provides a Zero-Trust Dual-Layer DPI Bypass & Encrypted Tunnel engineered to restore instant, low-latency Discord connectivity across restricted networks (Iran, UAE / Middle East, Turkey, Russia, and Global routes).%n%nClick Next to continue.
 FinishedHeadingLabel=Completing the {#MyAppName} v{#MyAppVersion} Setup Wizard
-FinishedLabelNoIcons=Setup has finished installing {#MyAppName} v{#MyAppVersion} on your computer. Your connection optimizer is ready.
+FinishedLabelNoIcons=Setup has finished installing {#MyAppName} v{#MyAppVersion} on your computer. Your dual-layer DPI bypass engine is ready.
 FinishedLabel=Setup has finished installing {#MyAppName} v{#MyAppVersion} on your computer. The application may be launched by selecting the installed shortcuts.
 
 [Tasks]
@@ -61,6 +60,7 @@ Source: "{#SourceDir}\DiscordTunnel.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\DiscordTunnel.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\DiscordTunnel.deps.json"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\DiscordTunnel.runtimeconfig.json"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourceDir}\flag_ir.png"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\Uninstall Discord Shield.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\Core\DiscordShieldEngine.exe"; DestDir: "{app}\Core"; Flags: ignoreversion
 Source: "{#SourceDir}\Core\WinDivert.dll"; DestDir: "{app}\Core"; Flags: ignoreversion
