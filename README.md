@@ -38,6 +38,9 @@ Discord Shield deploys a multi-layer evasion stack tailored specifically for Dis
 6. **100% Local Zero-Trust Architecture**
    All evasion logic runs in local memory. No user credentials, tokens, voice packets, or text messages are ever intercepted, logged, or sent to external servers.
 
+7. **Dual-Layer Browser and Web App Bypassing**
+   Transparently restores full access to the Discord website (`discord.com`, `www.discord.com`, web login, voice web app, and CDN assets) across all modern web browsers (Chrome, Edge, Firefox, Brave, Opera). Automatically activates dynamic Proxy Auto-Configuration (PAC) routing alongside active anti-poisoning DNS mapping while connected, routing Discord web traffic through the desynchronization engine while keeping all non-Discord web browsing completely direct with zero overhead.
+
 ---
 
 ## Supported Regions and Network Operators

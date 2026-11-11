@@ -53,7 +53,12 @@ namespace DiscordTunnel
 
             InitializeCoreEngine();
             SetupSystemTray();
-            Task.Run(SystemUtilities.CleanLegacyDohOverrides);
+            Task.Run(() =>
+            {
+                SystemUtilities.CleanLegacyDohOverrides();
+                SystemUtilities.DisableBrowserProxy();
+                SystemUtilities.RemoveDiscordHostsMapping();
+            });
 
             Closing += MainWindow_Closing;
             Loaded += (_, _) => PlayEntrance();
@@ -414,6 +419,8 @@ namespace DiscordTunnel
                 if (connected && watched != null)
                 {
                     AttachEngineExitWatcher(watched);
+                    SystemUtilities.ApplyDiscordHostsMapping();
+                    SystemUtilities.EnableBrowserProxy();
                     SetUiState(true, latency, _activeProfileName);
                     StartBackgroundPing();
                 }
@@ -556,6 +563,8 @@ namespace DiscordTunnel
             SystemUtilities.TerminateProcessByName("DiscordShieldEngine");
             SystemUtilities.TerminateProcessByName("goodbyedpi");
             SystemUtilities.StopDriverService();
+            SystemUtilities.DisableBrowserProxy();
+            SystemUtilities.RemoveDiscordHostsMapping();
         }
 
         private static void StopProcess(ref Process? process)

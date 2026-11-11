@@ -26,9 +26,6 @@
     <Resource Include="app_logo.png" />
     <Resource Include="app.ico" />
     <Resource Include="flag_ir.png" />
-    <None Update="flag_ir.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="Core\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
