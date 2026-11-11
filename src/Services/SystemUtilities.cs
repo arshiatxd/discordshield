@@ -27,6 +27,34 @@ namespace DiscordTunnel.Services
         [DllImport("user32.dll")]
         public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
+        private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+        public static IntPtr FindWindowForProcess(int processId)
+        {
+            IntPtr found = IntPtr.Zero;
+            try
+            {
+                EnumWindows((hWnd, _) =>
+                {
+                    GetWindowThreadProcessId(hWnd, out uint pid);
+                    if (pid == (uint)processId)
+                    {
+                        found = hWnd;
+                        return false;
+                    }
+                    return true;
+                }, IntPtr.Zero);
+            }
+            catch { }
+            return found;
+        }
+
         public static readonly int WmShowAppMessage = RegisterWindowMessage("WM_DISCORD_SHIELD_RESTORE_WINDOW");
         public static readonly IntPtr HwndBroadcast = (IntPtr)0xffff;
 

@@ -47,10 +47,17 @@ namespace DiscordTunnel
                     var current = Process.GetCurrentProcess();
                     foreach (var proc in Process.GetProcessesByName(current.ProcessName))
                     {
-                        if (proc.Id != current.Id && proc.MainWindowHandle != IntPtr.Zero)
+                        if (proc.Id != current.Id)
                         {
-                            SystemUtilities.ShowWindow(proc.MainWindowHandle, 9);
-                            SystemUtilities.SetForegroundWindow(proc.MainWindowHandle);
+                            IntPtr hWnd = proc.MainWindowHandle != IntPtr.Zero
+                                ? proc.MainWindowHandle
+                                : SystemUtilities.FindWindowForProcess(proc.Id);
+
+                            if (hWnd != IntPtr.Zero)
+                            {
+                                SystemUtilities.ShowWindow(hWnd, 9);
+                                SystemUtilities.SetForegroundWindow(hWnd);
+                            }
                             break;
                         }
                     }
