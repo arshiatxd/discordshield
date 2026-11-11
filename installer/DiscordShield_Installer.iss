@@ -49,9 +49,9 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Messages]
 SetupWindowTitle=Setup - {#MyAppName} v{#MyAppVersion}
 WelcomeLabel1=Welcome to the {#MyAppName} v{#MyAppVersion} Setup Wizard
-WelcomeLabel2=This wizard will install {#MyAppName} v{#MyAppVersion} on your computer.%n%n{#MyAppName} provides a Zero-Trust Dual-Layer DPI Evasion & Local Tunnel engineered to restore instant, low-latency Discord connectivity across restricted networks (Iran, UAE / Middle East, Turkey, Russia, and Global routes).%n%nClick Next to continue.
+WelcomeLabel2=This wizard will install {#MyAppName} v{#MyAppVersion} on your computer.%n%n{#MyAppName} provides a Zero-Trust Dual-Layer DPI Evasion & Local Tunnel engineered to restore instant, low-latency Discord connectivity for both the desktop app and discord.com web services across restricted networks (Turkey, Iran, UAE / Middle East, Russia, and Global routes).%n%nClick Next to continue.
 FinishedHeadingLabel=Completing the {#MyAppName} v{#MyAppVersion} Setup Wizard
-FinishedLabelNoIcons=Setup has finished installing {#MyAppName} v{#MyAppVersion} on your computer. Your local DPI evasion engine is ready.
+FinishedLabelNoIcons=Setup has finished installing {#MyAppName} v{#MyAppVersion} on your computer. Your dual-layer DPI evasion and proxy engine is ready.
 FinishedLabel=Setup has finished installing {#MyAppName} v{#MyAppVersion} on your computer. The application may be launched by selecting the installed shortcuts.
 
 [Tasks]
