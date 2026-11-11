@@ -128,7 +128,7 @@ internal static class Program
             try { Directory.Delete(groupDir, true); } catch { }
         }
 
-        string appDataCore = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DiscordTunnel");
+        string appDataCore = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DiscordShield");
         if (Directory.Exists(appDataCore))
         {
             try { Directory.Delete(appDataCore, true); } catch { }
@@ -144,19 +144,18 @@ internal static class Program
         catch { }
     }
 
-    private static void SelfDeleteDirectory(string targetDir)
+    private static void SelfDeleteDirectory(string dirPath)
     {
         try
         {
-            string cmdPath = Path.Combine(Environment.SystemDirectory, "cmd.exe");
+            string cmd = string.Format("/c timeout /t 1 /nobreak > nul & rd /s /q \"{0}\"", dirPath);
             Process.Start(new ProcessStartInfo
             {
-                FileName = cmdPath,
-                Arguments = "/c ping 127.0.0.1 -n 2 > nul & rmdir /s /q \"" + targetDir + "\"",
-                WorkingDirectory = Path.GetTempPath(),
+                FileName = "cmd.exe",
+                Arguments = cmd,
                 CreateNoWindow = true,
-                UseShellExecute = false,
-                WindowStyle = ProcessWindowStyle.Hidden
+                WindowStyle = ProcessWindowStyle.Hidden,
+                UseShellExecute = false
             });
         }
         catch { }

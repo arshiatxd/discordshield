@@ -23,6 +23,3 @@ updates.discord.com
 status.discord.com
 dl-debug.discordapp.net
 discord-attachments-uploads-prd.storage.googleapis.com
-discord.new
-discord.app
-discordapp.io

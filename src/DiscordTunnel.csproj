@@ -13,6 +13,11 @@
     <AssemblyVersion>1.0.1.0</AssemblyVersion>
     <FileVersion>1.0.1.0</FileVersion>
     <Product>Discord Shield</Product>
+    <Company>Discord Shield Contributors</Company>
+    <Authors>Discord Shield Contributors</Authors>
+    <Description>Zero-Trust Local DPI Evasion and Encrypted Tunnel for Discord</Description>
+    <Copyright>Copyright © 2026 Discord Shield Contributors</Copyright>
+    <NeutralLanguage>en-US</NeutralLanguage>
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
@@ -21,7 +26,6 @@
     <Resource Include="app_logo.png" />
     <Resource Include="app.ico" />
     <Resource Include="flag_ir.png" />
-    <EmbeddedResource Include="Core\**\*" />
     <None Update="Core\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
