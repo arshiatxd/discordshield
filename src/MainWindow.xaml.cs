@@ -501,11 +501,7 @@ namespace DiscordTunnel
                 }
                 else
                 {
-                    profilesToTry.Add(_regionOptions[1]);
-                    profilesToTry.Add(_regionOptions[4]);
-                    profilesToTry.Add(_regionOptions[2]);
-                    profilesToTry.Add(_regionOptions[3]);
-                    profilesToTry.Add(_regionOptions[5]);
+                    profilesToTry = await GetAutoDetectProfileQueueAsync(token);
                 }
 
                 bool isAutoMode = profilesToTry.Count > 1;
@@ -584,7 +580,7 @@ namespace DiscordTunnel
                     {
                         connectedSuccessfully = true;
                         verifiedLatency = latencyMs;
-                        _activeProfileName = profile.ShortName;
+                        _activeProfileName = isAutoMode ? $"Auto ({profile.ShortName})" : profile.ShortName;
                         break;
                     }
                     else
@@ -1060,6 +1056,89 @@ namespace DiscordTunnel
                 process?.WaitForExit(800);
             }
             catch { }
+        }
+
+        private static async Task<string> DetectUserCountryCodeAsync(CancellationToken token = default)
+        {
+            try
+            {
+                using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(1.5) };
+                client.DefaultRequestHeaders.Add("User-Agent", "DiscordShield/1.0.1");
+                string trace = await client.GetStringAsync("https://cloudflare.com/cdn-cgi/trace", token).ConfigureAwait(false);
+                foreach (string line in trace.Split('\n'))
+                {
+                    if (line.StartsWith("loc=", StringComparison.OrdinalIgnoreCase))
+                    {
+                        string code = line.Substring(4).Trim().ToUpperInvariant();
+                        if (!string.IsNullOrEmpty(code)) return code;
+                    }
+                }
+            }
+            catch { }
+
+            try
+            {
+                string tz = TimeZoneInfo.Local.Id + " " + TimeZoneInfo.Local.DisplayName;
+                if (tz.IndexOf("Turkey", StringComparison.OrdinalIgnoreCase) >= 0 || tz.IndexOf("Istanbul", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return "TR";
+                if (tz.IndexOf("Iran", StringComparison.OrdinalIgnoreCase) >= 0 || tz.IndexOf("Tehran", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return "IR";
+                if (tz.IndexOf("Russia", StringComparison.OrdinalIgnoreCase) >= 0 || tz.IndexOf("Moscow", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return "RU";
+                if (tz.IndexOf("Arabian", StringComparison.OrdinalIgnoreCase) >= 0 || tz.IndexOf("Dubai", StringComparison.OrdinalIgnoreCase) >= 0 || tz.IndexOf("Abu Dhabi", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return "AE";
+            }
+            catch { }
+
+            try
+            {
+                return System.Globalization.RegionInfo.CurrentRegion.TwoLetterISORegionName.ToUpperInvariant();
+            }
+            catch { }
+
+            return "GL";
+        }
+
+        private async Task<List<RegionOption>> GetAutoDetectProfileQueueAsync(CancellationToken token = default)
+        {
+            string geo = await DetectUserCountryCodeAsync(token).ConfigureAwait(false);
+            var queue = new List<RegionOption>();
+
+            RegionOption? FindByCode(string code) => _regionOptions.Find(r => r.Code == code);
+
+            var prioritizedCodes = new List<string>();
+
+            if (geo == "TR")
+            {
+                prioritizedCodes.AddRange(new[] { "TR", "GL", "AE", "RU", "IR" });
+            }
+            else if (geo == "RU" || geo == "BY")
+            {
+                prioritizedCodes.AddRange(new[] { "RU", "TR", "GL", "AE", "IR" });
+            }
+            else if (geo == "IR")
+            {
+                prioritizedCodes.AddRange(new[] { "IR", "AE", "TR", "RU", "GL" });
+            }
+            else if (geo == "AE" || geo == "SA" || geo == "OM" || geo == "QA" || geo == "KW" || geo == "BH")
+            {
+                prioritizedCodes.AddRange(new[] { "AE", "TR", "GL", "IR", "RU" });
+            }
+            else
+            {
+                prioritizedCodes.AddRange(new[] { "GL", "TR", "AE", "RU", "IR" });
+            }
+
+            foreach (var code in prioritizedCodes)
+            {
+                var opt = FindByCode(code);
+                if (opt != null && !queue.Contains(opt))
+                {
+                    queue.Add(opt);
+                }
+            }
+
+            return queue;
         }
     }
 }
