@@ -10,85 +10,93 @@
 
 ---
 
-Discord Shield is a lightweight, open-source Windows application engineered to restore reliable, low-latency connectivity to Discord across networks affected by stateful Deep Packet Inspection (DPI), DNS manipulation, and TLS Server Name Indication (SNI) filtering.
+Discord Shield is a lightweight, open-source Windows desktop utility engineered to restore reliable, low-latency connectivity to Discord across networks affected by stateful Deep Packet Inspection (DPI), DNS poisoning, and TLS Server Name Indication (SNI) filtering.
 
-Unlike VPN providers that route all system traffic through remote proxy servers, Discord Shield operates entirely on the local computer. It neutralizes censorship middleboxes by segmenting TLS ClientHello handshakes, desynchronizing TCP packet headers, and ensuring clean DNS query resolution without intermediary servers, accounts, or privacy risks.
+Unlike conventional VPN providers that route all machine traffic through remote relays, Discord Shield runs entirely on the local computer. It bypasses censorship middleboxes by splitting TLS ClientHello handshakes, desynchronizing TCP packet headers, suppressing censored QUIC handshakes, and enforcing clean DNS resolution without intermediate proxies, account registration, or traffic redirection.
 
 ---
 
 ## Technical Overview
 
-Discord Shield deploys a multi-layer evasion stack designed specifically for Discord's desktop architecture and Cloudflare edge infrastructure:
+Discord Shield deploys a multi-layer evasion stack tailored specifically for Discord's desktop client, voice gateway infrastructure, and Cloudflare edge network:
 
 1. **Application-Level TLS Record Splitting**
-   The application intercepts TLS handshakes destined for Discord endpoints and splits the `ClientHello` message across records right before the SNI extension. DPI middleboxes cannot inspect the fragmented host header and allow the stream through, while remote destination edge servers reassemble the standard TLS stream cleanly.
+   Intercepts outbound TLS handshakes destined for Discord endpoints and splits the `ClientHello` frame across records directly before the SNI extension. Stateful inspection middleboxes fail to reconstruct the fragmented host header and let the connection pass, while Cloudflare destination endpoints reassemble the standard TLS stream seamlessly.
 
 2. **Kernel-Level Packet Desynchronization**
-   A local packet filter driver suppresses unencrypted HTTP/3 (QUIC) attempts, drops censorship-injected TCP RST flags, and applies out-of-order sequence number fragmentation to defeat stateful tracking.
+   A kernel packet filter driver intercepts and suppresses unencrypted HTTP/3 (QUIC) fallbacks, drops censorship-injected TCP RST packets, and injects out-of-band (OOB) packets and out-of-order sequence fragmentation to defeat stateful TCP stream tracking.
 
-3. **Universal DNS Resolver Compatibility**
-   Discord Shield operates seamlessly alongside any existing system DNS configuration. Users with custom resolvers (such as Cloudflare 1.1.1.1, Google 8.8.8.8, Quad9 9.9.9.9, or standard ISP DNS) will not experience query stalling or handshake timeouts.
+3. **In-Flight Connection Cancellation**
+   Users can immediately abort in-flight connection attempts via the integrated cancel control. Cancellation cleanly releases network resources, halts background probing routines, and flushes local resolver cache entries without lingering processes.
 
-4. **100% Local and Zero-Trust Execution**
-   All evasion and packet manipulation take place directly within local system memory. No user credentials, tokens, voice packets, or text messages are ever redirected, intercepted, or transmitted to remote servers.
+4. **Fluid Discord-Native Interface**
+   Built with a modern WPF fluid motion interface featuring a high-contrast dark theme, animated lock status indicator, responsive spring easing, real-time gateway latency telemetry, and an adaptive region dropdown designed to prevent clipping on constrained displays.
+
+5. **Universal Resolver Compatibility**
+   Operates transparently alongside any existing system DNS configuration, including public DoH resolvers (Cloudflare 1.1.1.1, Google 8.8.8.8, Quad9 9.9.9.9) and standard ISP-provided nameservers without query stalls or connection hangs.
+
+6. **100% Local Zero-Trust Architecture**
+   All evasion logic runs in local memory. No user credentials, tokens, voice packets, or text messages are ever intercepted, logged, or sent to external servers.
 
 ---
 
 ## Supported Regions and Network Operators
 
-Discord Shield includes targeted desynchronization profiles optimized for the inspection equipment deployed across major telecommunications providers:
+Discord Shield provides targeted evasion parameter sets calibrated for the specific inspection hardware and middlebox behaviors across major telecommunications providers:
+
+### Turkey
+- **Supported Operators:**
+  - Turkcell Superonline (Fiber, VDSL, LTE, and Superbox FWA)
+  - Turk Telekom (TTNET, VDSL, Fiber, and TT Mobil)
+  - Vodafone Turkey (Fixed Broadband, Fiber, and 4.5G Mobile)
+  - Turksat Kablonet (Cable Internet and Uydunet Fiber)
+  - TurkNet (GigaFiber, VDSL, and Active Infrastructure)
+  - Millenicom (Fiber and VDSL)
+  - NetSpeed (VDSL and Fiber)
+  - GibirNet (Fiber and VDSL)
+  - Comnet (Datacenter and Residential Fiber)
+  - D-Smart Net (ADSL and Fiber)
+- **Inspection Characteristics:** Out-of-order TCP segmentation, SNI offset splitting, reverse packet fragmentation, and selective QUIC suppression to evade BTK-mandated domain blocking and TCP reset injections.
 
 ### Iran
 - **Supported Operators:**
-  - Shatel (ADSL, VDSL, Fiber)
-  - Asiatech
-  - Zitel (TD-LTE)
-  - Pars Online
-  - RighTel (3G, 4G, 5G)
-  - Sabanet
-  - Pishgaman
-  - Hi-Web
-  - Hamrah-e Aval / MCI (Mobile and FWA)
-  - Irancell / MTN (Mobile and TD-LTE)
+  - Hamrah-e Aval / MCI (Mobile 3G/4G/5G and FWA)
+  - Irancell / MTN (Mobile, TD-LTE, and Fiber)
+  - RighTel (3G, 4G, and LTE)
+  - Shatel (ADSL, VDSL, and Shatel Mobile)
   - Telecommunication Company of Iran (TCI / Mokhaberat)
+  - Asiatech (ADSL, VDSL, and ODU)
+  - Zitel (TD-LTE and Unlimited FWA)
+  - Pars Online (ADSL and VDSL)
+  - Sabanet (ADSL and Wireless)
+  - Pishgaman (ADSL, VDSL, and Wireless)
+  - Hi-Web (ADSL, 4G Rural, and Wireless)
 - **Inspection Characteristics:** Out-of-band (OOB) TCP desync, whitelisted fake SNI injection, TLS record fragmentation, and clean DNS query routing.
 
 ### United Arab Emirates and Middle East
 - **Supported Operators:**
-  - Etisalat by e&
-  - du (Emirates Integrated Telecommunications Company)
-  - Saudi Telecom Company (STC)
-  - Zain
-  - Ooredoo
-  - Omantel
-- **Inspection Characteristics:** Countermeasures for VoIP, WebRTC protocol throttling, and domain-level inspection.
-
-### Turkey
-- **Supported Operators:**
-  - Turk Telekom (TTNET, VDSL, Fiber, and TT Mobil)
-  - Turkcell Superonline (Fiber, VDSL, and LTE)
-  - Vodafone Turkey (Fixed Broadband and Mobile)
-  - Turksat Kablonet (Cable Internet and Fiber)
-  - TurkNet (GigaFiber and VDSL)
-  - Millenicom
-  - D-Smart Net
-  - NetSpeed
-  - GibirNet
-  - Comnet
-- **Inspection Characteristics:** Out-of-order TCP segmentation, SNI offset splitting, reverse packet fragmentation, and selective QUIC suppression to evade BTK-mandated domain blocking and TCP reset injections.
+  - Etisalat by e& (Elife Fiber, Freedom 5G, and Fixed Wireless)
+  - du / Emirates Integrated Telecommunications Company (Home Fiber and 5G)
+  - Saudi Telecom Company (STC / stc pay / 5G)
+  - Mobily (Etihad Etisalat)
+  - Zain (Saudi Arabia, Kuwait, Bahrain, and Jordan)
+  - Ooredoo (Qatar, Oman, and Kuwait)
+  - Omantel (Oman Telecommunications Company)
+  - Batelco (Bahrain Telecommunications Company)
+- **Inspection Characteristics:** VoIP and WebRTC protocol unblocking, SIP filtering countermeasures, and TLS domain inspection bypass.
 
 ### Russia
 - **Supported Operators:**
-  - Rostelecom
-  - MTS (Mobile TeleSystems)
-  - Beeline (PJSC VimpelCom)
-  - MegaFon
-  - ER-Telecom (Dom.ru)
-  - Tele2 Russia
+  - Rostelecom (GPON and Broadband)
+  - MTS / Mobile TeleSystems (Mobile and Fixed)
+  - Beeline / PJSC VimpelCom (Home Internet and Mobile)
+  - MegaFon (Yota and Mobile 4G/5G)
+  - ER-Telecom / Dom.ru (Broadband and Fiber)
+  - Tele2 Russia (Rostelecom Mobile)
 - **Inspection Characteristics:** Bypasses RKN TSPU hardware filters via dynamic TTL shielding and TCP segmentation.
 
 ### Global / Auto-Detect
-- Automatically evaluates latency across candidate evasion profiles against the live Discord Gateway API (`https://discord.com/api/v9/gateway`) and activates the first verified profile. Compatible with university campuses, corporate environments, and public Wi-Fi networks.
+- Automatically detects the user's geographic network origin via low-overhead latency probes, reorders evasion profiles accordingly, and activates the first verified profile against the live Discord Gateway endpoint (`https://discord.com/api/v9/gateway`). Compatible with university campuses, corporate firewalls, and public Wi-Fi hotspots.
 
 ---
 
@@ -105,6 +113,25 @@ Discord Shield operates entirely on the user's local machine:
 ## Installation
 
 Download and run `Discord Shield Setup.exe` from the latest release to install the application. Administrator privileges are required to configure the local network filter driver.
+
+---
+
+## Building from Source
+
+### Prerequisites
+- Windows 10 / 11 (64-bit)
+- .NET 10.0 SDK
+- Inno Setup 6 (optional, required only for building the installer)
+
+### Compile Application
+```powershell
+dotnet build src\DiscordTunnel.csproj -c Release
+```
+
+### Build Installer
+```bat
+build.bat
+```
 
 ---
 
