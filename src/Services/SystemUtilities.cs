@@ -15,6 +15,21 @@ namespace DiscordTunnel.Services
         [DllImport("wininet.dll", SetLastError = true)]
         private static extern bool InternetSetOption(IntPtr hInternet, int dwOption, IntPtr lpBuffer, int dwBufferLength);
 
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        public static extern int RegisterWindowMessage(string lpString);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern bool PostMessage(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        public static readonly int WmShowAppMessage = RegisterWindowMessage("WM_DISCORD_SHIELD_RESTORE_WINDOW");
+        public static readonly IntPtr HwndBroadcast = (IntPtr)0xffff;
+
         private const int InternetOptionSettingsChanged = 39;
         private const int InternetOptionRefresh = 37;
         private const string InternetSettingsKey = @"Software\Microsoft\Windows\CurrentVersion\Internet Settings";

@@ -180,11 +180,42 @@ namespace DiscordTunnel
             if (_trayIcon.ContextMenuStrip is { Items.Count: > 1 } strip) strip.Items[1].Text = toggleLabel;
         }
 
-        private void RestoreWindow()
+        public void RestoreWindow()
         {
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.BeginInvoke(RestoreWindow);
+                return;
+            }
+
             Show();
-            WindowState = WindowState.Normal;
+            if (WindowState == WindowState.Minimized)
+            {
+                WindowState = WindowState.Normal;
+            }
             Activate();
+            Topmost = true;
+            Topmost = false;
+            Focus();
+        }
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            if (PresentationSource.FromVisual(this) is System.Windows.Interop.HwndSource source)
+            {
+                source.AddHook(WndProc);
+            }
+        }
+
+        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            if (msg == SystemUtilities.WmShowAppMessage)
+            {
+                RestoreWindow();
+                handled = true;
+            }
+            return IntPtr.Zero;
         }
 
         private void InitializeCoreEngine()
