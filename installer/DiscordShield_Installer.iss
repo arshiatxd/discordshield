@@ -24,6 +24,7 @@ VersionInfoDescription={#MyAppName} v{#MyAppVersion} Setup Wizard
 VersionInfoCopyright=Copyright (C) 2026 {#MyAppPublisher}
 DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
+DisableDirPage=no
 DisableProgramGroupPage=yes
 DisableWelcomePage=no
 OutputDir=..\releases
