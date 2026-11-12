@@ -1,11 +1,13 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("Uninstall Discord Shield")]
 [assembly: AssemblyDescription("Discord Shield Uninstaller")]
+[assembly: AssemblyCompany("Discord Shield Contributors")]
 [assembly: AssemblyProduct("Discord Shield")]
 [assembly: AssemblyVersion("1.0.1.0")]
 [assembly: AssemblyFileVersion("1.0.1.0")]
@@ -15,14 +17,27 @@ internal static class Program
     [DllImport("user32.dll", CharSet = CharSet.Unicode)]
     private static extern int MessageBoxW(IntPtr hWnd, string text, string caption, uint type);
 
+    [DllImport("wininet.dll", SetLastError = true)]
+    private static extern bool InternetSetOption(IntPtr hInternet, int dwOption, IntPtr lpBuffer, int dwBufferLength);
+
+    private const int InternetOptionSettingsChanged = 39;
+    private const int InternetOptionRefresh = 37;
     private const uint MB_YESNO = 0x00000004;
     private const uint MB_ICONQUESTION = 0x00000020;
     private const uint MB_ICONINFORMATION = 0x00000040;
     private const int IDYES = 6;
+    private const string InternetSettingsKey = @"Software\Microsoft\Windows\CurrentVersion\Internet Settings";
+    private const string ShieldRegistryKey = @"Software\DiscordShield";
 
     [STAThread]
-    private static void Main()
+    private static void Main(string[] args)
     {
+        if (args.Any(a => string.Equals(a, "--cleanup", StringComparison.OrdinalIgnoreCase)))
+        {
+            RunFullCleanup();
+            return;
+        }
+
         string baseDir = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\', '/');
         string uninsExe = Path.Combine(baseDir, "unins000.exe");
 
@@ -43,28 +58,34 @@ internal static class Program
 
         int response = MessageBoxW(
             IntPtr.Zero,
-            "Are you sure you want to completely remove Discord Shield and all of its components from your computer?",
+            "Are you sure you want to remove Discord Shield components and settings?",
             "Uninstall Discord Shield",
             MB_YESNO | MB_ICONQUESTION
         );
 
         if (response != IDYES) return;
 
+        RunFullCleanup();
+
+        MessageBoxW(
+            IntPtr.Zero,
+            "Discord Shield components and settings have been removed.",
+            "Uninstall Discord Shield",
+            MB_ICONINFORMATION
+        );
+    }
+
+    private static void RunFullCleanup()
+    {
         KillProcess("DiscordTunnel");
         KillProcess("DiscordShieldEngine");
         KillProcess("ciadpi");
         KillProcess("goodbyedpi");
         StopService("WinDivert");
+        DisableBrowserProxy();
+        CleanupLegacyHosts();
+        CleanupDiscordBridge();
         CleanupRegistryAndShortcuts();
-
-        MessageBoxW(
-            IntPtr.Zero,
-            "Discord Shield has been successfully uninstalled.",
-            "Uninstall Discord Shield",
-            MB_ICONINFORMATION
-        );
-
-        SelfDeleteDirectory(baseDir);
     }
 
     private static void KillProcess(string name)
@@ -108,46 +129,98 @@ internal static class Program
         catch { }
     }
 
+    private static void DisableBrowserProxy()
+    {
+        try
+        {
+            using (var internetKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(InternetSettingsKey, true))
+            {
+                if (internetKey == null) return;
+                object val = internetKey.GetValue("AutoConfigURL");
+                string currentUrl = val as string;
+                if (string.IsNullOrEmpty(currentUrl) || currentUrl.IndexOf("127.0.0.1:1085", StringComparison.OrdinalIgnoreCase) < 0)
+                {
+                    return;
+                }
+
+                string previousUrl = null;
+                using (var appKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(ShieldRegistryKey, false))
+                {
+                    if (appKey != null) previousUrl = appKey.GetValue("SavedAutoConfigURL") as string;
+                }
+
+                if (!string.IsNullOrWhiteSpace(previousUrl))
+                {
+                    internetKey.SetValue("AutoConfigURL", previousUrl, Microsoft.Win32.RegistryValueKind.String);
+                }
+                else
+                {
+                    internetKey.DeleteValue("AutoConfigURL", false);
+                }
+
+                InternetSetOption(IntPtr.Zero, InternetOptionSettingsChanged, IntPtr.Zero, 0);
+                InternetSetOption(IntPtr.Zero, InternetOptionRefresh, IntPtr.Zero, 0);
+            }
+        }
+        catch { }
+    }
+
+    private static void CleanupLegacyHosts()
+    {
+        try
+        {
+            string hostsPath = Path.Combine(Environment.SystemDirectory, @"drivers\etc\hosts");
+            if (!File.Exists(hostsPath)) return;
+
+            string current = File.ReadAllText(hostsPath);
+            const string header = "# Discord Shield Managed Hosts";
+            const string footer = "# End Discord Shield Managed Hosts";
+            int start = current.IndexOf(header, StringComparison.Ordinal);
+            if (start < 0) return;
+
+            int end = current.IndexOf(footer, StringComparison.Ordinal);
+            end = end >= 0 ? end + footer.Length : current.Length;
+
+            string updated = current.Remove(start, end - start).TrimEnd();
+            File.WriteAllText(hostsPath, string.IsNullOrEmpty(updated) ? string.Empty : updated + Environment.NewLine);
+        }
+        catch { }
+    }
+
+    private static void CleanupDiscordBridge()
+    {
+        try
+        {
+            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            foreach (string flavor in new string[] { "Discord", "DiscordPTB", "DiscordCanary" })
+            {
+                string basePath = Path.Combine(localAppData, flavor);
+                if (!Directory.Exists(basePath)) continue;
+
+                foreach (string appDir in Directory.GetDirectories(basePath, "app-*"))
+                {
+                    TryDeleteFile(Path.Combine(appDir, "drover.ini"));
+                    TryDeleteFile(Path.Combine(appDir, "version.dll"));
+                }
+            }
+
+            foreach (string folder in new string[] { "DiscordTunnel", "DiscordShield" })
+            {
+                string appDataCore = Path.Combine(localAppData, folder);
+                if (Directory.Exists(appDataCore))
+                {
+                    try { Directory.Delete(appDataCore, true); } catch { }
+                }
+            }
+        }
+        catch { }
+    }
+
     private static void CleanupRegistryAndShortcuts()
     {
         try
         {
-            Microsoft.Win32.Registry.CurrentUser.DeleteSubKeyTree(@"Software\DiscordShield", false);
-        }
-        catch { }
-
-        try
-        {
-            using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Internet Settings", true))
-            {
-                if (key != null)
-                {
-                    string url = key.GetValue("AutoConfigURL") as string;
-                    if (url != null && url.Contains("127.0.0.1:1085"))
-                    {
-                        key.DeleteValue("AutoConfigURL", false);
-                    }
-                }
-            }
-        }
-        catch { }
-
-        try
-        {
-            string hostsPath = Path.Combine(Environment.SystemDirectory, @"drivers\etc\hosts");
-            if (File.Exists(hostsPath))
-            {
-                string text = File.ReadAllText(hostsPath);
-                int start = text.IndexOf("# Discord Shield Managed Hosts");
-                if (start >= 0)
-                {
-                    int end = text.IndexOf("# End Discord Shield Managed Hosts");
-                    if (end >= 0) end += 34;
-                    else end = text.Length;
-                    string updated = text.Remove(start, end - start).TrimEnd();
-                    File.WriteAllText(hostsPath, string.IsNullOrEmpty(updated) ? string.Empty : updated + Environment.NewLine);
-                }
-            }
+            Microsoft.Win32.Registry.CurrentUser.DeleteSubKeyTree(ShieldRegistryKey, false);
         }
         catch { }
 
@@ -162,12 +235,6 @@ internal static class Program
         {
             try { Directory.Delete(groupDir, true); } catch { }
         }
-
-        string appDataCore = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DiscordShield");
-        if (Directory.Exists(appDataCore))
-        {
-            try { Directory.Delete(appDataCore, true); } catch { }
-        }
     }
 
     private static void TryDeleteFile(string path)
@@ -175,23 +242,6 @@ internal static class Program
         try
         {
             if (File.Exists(path)) File.Delete(path);
-        }
-        catch { }
-    }
-
-    private static void SelfDeleteDirectory(string dirPath)
-    {
-        try
-        {
-            string cmd = string.Format("/c timeout /t 1 /nobreak > nul & rd /s /q \"{0}\"", dirPath);
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = "cmd.exe",
-                Arguments = cmd,
-                CreateNoWindow = true,
-                WindowStyle = ProcessWindowStyle.Hidden,
-                UseShellExecute = false
-            });
         }
         catch { }
     }

@@ -49,9 +49,9 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Messages]
 SetupWindowTitle=Setup - {#MyAppName} v{#MyAppVersion}
 WelcomeLabel1=Welcome to the {#MyAppName} v{#MyAppVersion} Setup Wizard
-WelcomeLabel2=This wizard will install {#MyAppName} v{#MyAppVersion} on your computer.%n%n{#MyAppName} provides a Zero-Trust Dual-Layer DPI Evasion & Local Tunnel engineered to restore instant, low-latency Discord connectivity for both the desktop app and discord.com web services across restricted networks (Turkey, Iran, UAE / Middle East, Russia, and Global routes).%n%nClick Next to continue.
+WelcomeLabel2=This wizard will install {#MyAppName} v{#MyAppVersion} on your computer.%n%n{#MyAppName} provides a local DPI desynchronization engine and SOCKS5 routing for both the Discord desktop app and browser web client across restricted networks.%n%nClick Next to continue.
 FinishedHeadingLabel=Completing the {#MyAppName} v{#MyAppVersion} Setup Wizard
-FinishedLabelNoIcons=Setup has finished installing {#MyAppName} v{#MyAppVersion} on your computer. Your dual-layer DPI evasion and proxy engine is ready.
+FinishedLabelNoIcons=Setup has finished installing {#MyAppName} v{#MyAppVersion} on your computer. Your local DPI bypass engine is ready.
 FinishedLabel=Setup has finished installing {#MyAppName} v{#MyAppVersion} on your computer. The application may be launched by selecting the installed shortcuts.
 
 [Tasks]
@@ -64,12 +64,13 @@ Source: "{#SourceDir}\DiscordTunnel.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\DiscordTunnel.deps.json"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\DiscordTunnel.runtimeconfig.json"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\Uninstall Discord Shield.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourceDir}\flag_ir.png"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\Core\DiscordShieldEngine.exe"; DestDir: "{app}\Core"; Flags: ignoreversion
 Source: "{#SourceDir}\Core\WinDivert.dll"; DestDir: "{app}\Core"; Flags: ignoreversion
 Source: "{#SourceDir}\Core\WinDivert64.sys"; DestDir: "{app}\Core"; Flags: ignoreversion
 Source: "{#SourceDir}\Core\discord-list.txt"; DestDir: "{app}\Core"; Flags: ignoreversion
 Source: "{#SourceDir}\Core\ciadpi.exe"; DestDir: "{app}\Core"; Flags: ignoreversion
+Source: "{#SourceDir}\Core\version.dll"; DestDir: "{app}\Core"; Flags: ignoreversion
+Source: "{#SourceDir}\Core\drover.ini"; DestDir: "{app}\Core"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
@@ -81,7 +82,7 @@ Name: "{commonstartup}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: 
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
-Filename: "{sys}\sc.exe"; Parameters: "stop WinDivert"; Flags: runhidden; RunOnceId: "StopDriver"
+Filename: "{app}\Uninstall Discord Shield.exe"; Parameters: "--cleanup"; Flags: runhidden; RunOnceId: "DiscordShieldCleanup"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\Core"

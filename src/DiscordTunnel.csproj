@@ -9,10 +9,15 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>app.ico</ApplicationIcon>
-    <Version>1.0.0</Version>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
+    <Version>1.0.1</Version>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <FileVersion>1.0.1.0</FileVersion>
     <Product>Discord Shield</Product>
+    <Company>Discord Shield Contributors</Company>
+    <Authors>Discord Shield Contributors</Authors>
+    <Description>Zero-Trust Dual-Layer DPI Evasion and Local Tunnel for Discord</Description>
+    <Copyright>Copyright © 2026 Discord Shield Contributors</Copyright>
+    <NeutralLanguage>en-US</NeutralLanguage>
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
@@ -20,7 +25,7 @@
   <ItemGroup>
     <Resource Include="app_logo.png" />
     <Resource Include="app.ico" />
-    <EmbeddedResource Include="Core\**\*" />
+    <Resource Include="flag_ir.png" />
     <None Update="Core\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
