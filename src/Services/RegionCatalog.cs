@@ -41,19 +41,37 @@ namespace DiscordTunnel.Services
                     {
                         Label = "Primary",
                         EngineArguments = $"-9 --fake-gen 10 -q {YandexDnsArgs} --blacklist discord-list.txt",
-                        ProxyArguments = "--oob 1 --tlsrec 1+s --auto=torst,ssl_err -s 1 -d 3+s --ttl 5 --fake -1+s --fake-sni www.cloudflare.com -M h,d -p 1080"
+                        ProxyArguments = "--oob 1 --tlsrec 1+s -T 1 --auto=torst,ssl_err -s 1 -d 3+s --ttl 5 --fake -1+s --fake-sni www.cloudflare.com -M h,d"
                     },
                     new()
                     {
-                        Label = "Adaptive OOB",
+                        Label = "Native Split",
+                        EngineArguments = "-f 2 -e 2 --native-frag --frag-by-sni -q --blacklist discord-list.txt",
+                        ProxyArguments = "-I 0.0.0.0 -K t,h -r 1+s -s 1+s -M h,d"
+                    },
+                    new()
+                    {
+                        Label = "Proxy Split (No Driver)",
+                        EngineArguments = string.Empty,
+                        ProxyArguments = "-I 0.0.0.0 -K t,h -r 1+s -s 1:2:1 -M h,d"
+                    },
+                    new()
+                    {
+                        Label = "Forward Fake SNI",
+                        EngineArguments = string.Empty,
+                        ProxyArguments = "-I 0.0.0.0 -K t,h -T 1 -r 1+s -s 1+s -f -1+s -t 8 -Q rand,orig -n www.google.com -A t,s -r 1+s -s 1+s -f -1+s -t 10 -Q rand,orig -n cdn.jsdelivr.net -M h,d"
+                    },
+                    new()
+                    {
+                        Label = "Adaptive Disorder",
                         EngineArguments = $"-5 --wrong-chksum --reverse-frag -q {OpenDnsArgs} --blacklist discord-list.txt",
-                        ProxyArguments = "--split 1+s --disorder 3+s --oob 1 --tlsrec 1+s --auto=torst,ssl_err,redirect -L 3 -M h,d -p 1080"
+                        ProxyArguments = "-I 0.0.0.0 -K t,h -T 1 -s 1+s -d 3+s -r 1+s --auto=torst,ssl_err -o 1 -r 1+s -M h,d"
                     },
                     new()
                     {
-                        Label = "Direct DNS Mode",
+                        Label = "Direct Safe Mode",
                         EngineArguments = "-9 --fake-gen 10 --reverse-frag -q --blacklist discord-list.txt",
-                        ProxyArguments = "--oob 1 --tlsrec 1+s --split 1+s --disorder 2+s --auto=torst,ssl_err -L 3 --fake -1+s --fake-sni speed.cloudflare.com --ttl 7 -M h,d,r -p 1080"
+                        ProxyArguments = "-I 0.0.0.0 -K t,h -o 1 -r 1+s -s 1+s -d 2+s --auto=torst,ssl_err -L 3 --fake -1+s --fake-sni speed.cloudflare.com --ttl 7 -M h,d,r"
                     }
                 }
             },
@@ -69,13 +87,13 @@ namespace DiscordTunnel.Services
                     {
                         Label = "Primary",
                         EngineArguments = $"-5 --set-ttl 5 {YandexDnsArgs} --blacklist discord-list.txt",
-                        ProxyArguments = "--split 1 --disorder 3+s --mod-http=h,d --auto=torst --tlsrec 1+s -p 1080"
+                        ProxyArguments = "--split 1 --disorder 3+s --mod-http=h,d -T 1 --auto=torst --tlsrec 1+s"
                     },
                     new()
                     {
                         Label = "Adaptive Disorder",
                         EngineArguments = "-9 --fake-gen 10 --wrong-seq --wrong-chksum --reverse-frag -q --blacklist discord-list.txt",
-                        ProxyArguments = "--oob 1 --tlsrec 1+s --split 1+s --disorder 3+s --auto=torst,ssl_err -L 3 -M h,d -p 1080"
+                        ProxyArguments = "--oob 1 --tlsrec 1+s --split 1+s --disorder 3+s -T 1 --auto=torst,ssl_err -L 3 -M h,d"
                     }
                 }
             },
@@ -91,13 +109,13 @@ namespace DiscordTunnel.Services
                     {
                         Label = "Primary",
                         EngineArguments = $"-9 --auto-ttl 1-4-10 -q {YandexDnsArgs} --blacklist discord-list.txt",
-                        ProxyArguments = "--split 1 --disorder 3+s --mod-http=h,d --auto=torst --tlsrec 1+s --ttl 5 -p 1080"
+                        ProxyArguments = "--split 1 --disorder 3+s --mod-http=h,d -T 1 --auto=torst --tlsrec 1+s --ttl 5"
                     },
                     new()
                     {
                         Label = "Adaptive TSPU",
                         EngineArguments = "-9 --fake-gen 10 --auto-ttl 1-4-10 --wrong-seq --wrong-chksum -q --blacklist discord-list.txt",
-                        ProxyArguments = "--oob 1 --tlsrec 1+s --split 1+s --disorder 3+s --auto=torst,ssl_err -L 3 -M h,d -p 1080"
+                        ProxyArguments = "--oob 1 --tlsrec 1+s --split 1+s --disorder 3+s -T 1 --auto=torst,ssl_err -L 3 -M h,d"
                     }
                 }
             },
@@ -113,13 +131,13 @@ namespace DiscordTunnel.Services
                     {
                         Label = "Primary",
                         EngineArguments = $"-7 -q {YandexDnsArgs} --blacklist discord-list.txt",
-                        ProxyArguments = "--split 1 --disorder 3+s --mod-http=h,d --auto=torst --tlsrec 1+s -p 1080"
+                        ProxyArguments = "--split 1 --disorder 3+s --mod-http=h,d -T 1 --auto=torst --tlsrec 1+s"
                     },
                     new()
                     {
                         Label = "Adaptive Fake SNI",
                         EngineArguments = "-9 --fake-gen 10 --wrong-chksum --reverse-frag -q --blacklist discord-list.txt",
-                        ProxyArguments = "--oob 1 --tlsrec 1+s --split 1+s --disorder 3+s --auto=torst,ssl_err -L 3 --fake -1+s --fake-sni www.cloudflare.com --ttl 6 -M h,d -p 1080"
+                        ProxyArguments = "--oob 1 --tlsrec 1+s --split 1+s --disorder 3+s -T 1 --auto=torst,ssl_err -L 3 --fake -1+s --fake-sni www.cloudflare.com --ttl 6 -M h,d"
                     }
                 }
             },
@@ -135,13 +153,13 @@ namespace DiscordTunnel.Services
                     {
                         Label = "Primary",
                         EngineArguments = $"-5 -q --auto-ttl 1-4-10 {YandexDnsArgs} --blacklist discord-list.txt",
-                        ProxyArguments = "--split 1 --disorder 3+s --mod-http=h,d --auto=torst --tlsrec 1+s -p 1080"
+                        ProxyArguments = "--split 1 --disorder 3+s --mod-http=h,d -T 1 --auto=torst --tlsrec 1+s"
                     },
                     new()
                     {
                         Label = "Adaptive OOB",
                         EngineArguments = "-6 -q --reverse-frag --blacklist discord-list.txt",
-                        ProxyArguments = "--oob 1 --tlsrec 1+s --split 1+s --disorder 3+s --auto=torst,ssl_err -L 3 -M h,d -p 1080"
+                        ProxyArguments = "--oob 1 --tlsrec 1+s --split 1+s --disorder 3+s -T 1 --auto=torst,ssl_err -L 3 -M h,d"
                     }
                 }
             }

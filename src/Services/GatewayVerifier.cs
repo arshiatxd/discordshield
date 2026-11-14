@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,7 +12,13 @@ namespace DiscordTunnel.Services
     {
         private const string GatewayUrl = "https://discord.com/api/v9/gateway";
         private const string UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) DiscordShield/1.0.1";
-        private static readonly string[] FallbackCloudflareEdges = { "162.159.135.232", "162.159.137.232" };
+        private static readonly string[] FallbackCloudflareEdges =
+        {
+            "162.159.135.232",
+            "162.159.137.232",
+            "162.159.136.232",
+            "162.159.138.232"
+        };
 
         private readonly HttpClient _proxied;
 
@@ -26,7 +31,7 @@ namespace DiscordTunnel.Services
                 ConnectTimeout = TimeSpan.FromSeconds(2.5)
             })
             {
-                Timeout = TimeSpan.FromSeconds(2.8)
+                Timeout = TimeSpan.FromSeconds(3.0)
             };
         }
 
@@ -39,7 +44,7 @@ namespace DiscordTunnel.Services
                 long latency = await MeasureProxiedHttpAsync(token).ConfigureAwait(false);
                 if (latency <= 0)
                 {
-                    latency = await Task.Run(() => MeasureWithCurl(token), token).ConfigureAwait(false);
+                    latency = await Task.Run(() => MeasureWithCurl(token, attempt), token).ConfigureAwait(false);
                 }
 
                 if (latency > 0)
@@ -61,15 +66,13 @@ namespace DiscordTunnel.Services
             long latency = await MeasureProxiedHttpAsync(token).ConfigureAwait(false);
             if (latency > 0) return latency;
 
-            return await Task.Run(() => MeasureWithCurl(token), token).ConfigureAwait(false);
+            return await Task.Run(() => MeasureWithCurl(token, 1), token).ConfigureAwait(false);
         }
 
         private async Task<long> MeasureProxiedHttpAsync(CancellationToken token)
         {
             try
             {
-                if (await IsSystemDnsPoisonedAsync(token).ConfigureAwait(false)) return 0;
-
                 var timer = Stopwatch.StartNew();
                 using var request = new HttpRequestMessage(HttpMethod.Get, GatewayUrl);
                 request.Headers.Add("User-Agent", UserAgent);
@@ -91,22 +94,29 @@ namespace DiscordTunnel.Services
             }
         }
 
-        private static long MeasureWithCurl(CancellationToken token)
+        private static long MeasureWithCurl(CancellationToken token, int attempt)
         {
             if (token.IsCancellationRequested) return 0;
 
             string curl = Path.Combine(Environment.SystemDirectory, "curl.exe");
             if (!File.Exists(curl)) return 0;
 
-            foreach (string edgeIp in FallbackCloudflareEdges)
-            {
-                if (token.IsCancellationRequested) return 0;
-                long resolvedSocks = RunCurlProbe(curl, $"-s -m 2 --socks5-hostname 127.0.0.1:1080 --resolve discord.com:443:{edgeIp} {GatewayUrl}", token);
-                if (resolvedSocks > 0) return resolvedSocks;
-            }
+            int safeAttempt = Math.Max(1, attempt);
+            int idx1 = (safeAttempt - 1) * 2 % FallbackCloudflareEdges.Length;
+            int idx2 = ((safeAttempt - 1) * 2 + 1) % FallbackCloudflareEdges.Length;
+
+            string edge1 = FallbackCloudflareEdges[idx1];
+            long resolved1 = RunCurlProbe(curl, $"-s -m 3 --socks5-hostname 127.0.0.1:1080 --resolve discord.com:443:{edge1} {GatewayUrl}", token);
+            if (resolved1 > 0) return resolved1;
 
             if (token.IsCancellationRequested) return 0;
-            return RunCurlProbe(curl, $"-s -m 2 --socks5-hostname 127.0.0.1:1080 {GatewayUrl}", token);
+
+            string edge2 = FallbackCloudflareEdges[idx2];
+            long resolved2 = RunCurlProbe(curl, $"-s -m 3 --socks5-hostname 127.0.0.1:1080 --resolve discord.com:443:{edge2} {GatewayUrl}", token);
+            if (resolved2 > 0) return resolved2;
+
+            if (token.IsCancellationRequested) return 0;
+            return RunCurlProbe(curl, $"-s -m 3 --socks5-hostname 127.0.0.1:1080 {GatewayUrl}", token);
         }
 
         private static long RunCurlProbe(string curlPath, string arguments, CancellationToken token)
@@ -131,7 +141,7 @@ namespace DiscordTunnel.Services
                 });
 
                 string output = process.StandardOutput.ReadToEnd();
-                process.WaitForExit(2400);
+                process.WaitForExit(3400);
                 timer.Stop();
                 token.ThrowIfCancellationRequested();
                 return IsGatewayPayload(output) ? Math.Max(1, timer.ElapsedMilliseconds) : 0;
@@ -143,42 +153,6 @@ namespace DiscordTunnel.Services
             catch
             {
                 return 0;
-            }
-        }
-
-        private static async Task<bool> IsSystemDnsPoisonedAsync(CancellationToken token)
-        {
-            try
-            {
-                using var dnsCts = CancellationTokenSource.CreateLinkedTokenSource(token);
-                dnsCts.CancelAfter(1000);
-
-                var addresses = await Dns.GetHostAddressesAsync("discord.com", dnsCts.Token).ConfigureAwait(false);
-                if (addresses.Length == 0) return true;
-
-                foreach (var addr in addresses)
-                {
-                    if (IPAddress.IsLoopback(addr) || addr.Equals(IPAddress.Any) || addr.Equals(IPAddress.IPv6Any)) return true;
-
-                    byte[] bytes = addr.GetAddressBytes();
-                    if (addr.AddressFamily == AddressFamily.InterNetwork && bytes.Length == 4)
-                    {
-                        if (bytes[0] == 10 || bytes[0] == 127 || (bytes[0] == 192 && bytes[1] == 168) || (bytes[0] == 172 && bytes[1] >= 16 && bytes[1] <= 31))
-                        {
-                            return true;
-                        }
-                    }
-                }
-
-                return false;
-            }
-            catch (OperationCanceledException) when (token.IsCancellationRequested)
-            {
-                throw;
-            }
-            catch
-            {
-                return true;
             }
         }
 
