@@ -682,7 +682,7 @@
                         <ItemsControl x:Name="RegionList" ItemTemplate="{StaticResource RegionListItemTemplate}"/>
                     </Border>
 
-                    <Border x:Name="AppMenu" Visibility="Collapsed" Width="180" HorizontalAlignment="Left" VerticalAlignment="Top"
+                    <Border x:Name="AppMenu" Visibility="Collapsed" Width="200" HorizontalAlignment="Left" VerticalAlignment="Top"
                             Background="#1E1F22" BorderBrush="#35373C" BorderThickness="1" CornerRadius="18" Padding="6" Opacity="0" RenderTransformOrigin="1,0">
                         <Border.RenderTransform>
                             <ScaleTransform x:Name="AppMenuScale" ScaleX="0.94" ScaleY="0.9"/>
@@ -690,9 +690,14 @@
                         <Border.Effect>
                             <DropShadowEffect BlurRadius="24" ShadowDepth="6" Opacity="0.5" Color="#000000"/>
                         </Border.Effect>
-                        <Button x:Name="PrivacyMenuItem" Style="{StaticResource ListItemButtonStyle}" Click="PrivacyMenuItem_Click">
-                            <TextBlock Text="Privacy Policy" FontSize="13" FontWeight="SemiBold"/>
-                        </Button>
+                        <StackPanel>
+                            <Button x:Name="CopyDiagnosticsMenuItem" Style="{StaticResource ListItemButtonStyle}" Click="CopyDiagnosticsMenuItem_Click">
+                                <TextBlock Text="Copy Diagnostics" FontSize="13" FontWeight="SemiBold"/>
+                            </Button>
+                            <Button x:Name="PrivacyMenuItem" Style="{StaticResource ListItemButtonStyle}" Click="PrivacyMenuItem_Click">
+                                <TextBlock Text="Privacy Policy" FontSize="13" FontWeight="SemiBold"/>
+                            </Button>
+                        </StackPanel>
                     </Border>
                 </Grid>
 
