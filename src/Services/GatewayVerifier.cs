@@ -96,7 +96,7 @@ namespace DiscordTunnel.Services
 
         private static long MeasureWithCurl(CancellationToken token, int attempt)
         {
-            if (token.IsCancellationRequested) return 0;
+            token.ThrowIfCancellationRequested();
 
             string curl = Path.Combine(Environment.SystemDirectory, "curl.exe");
             if (!File.Exists(curl)) return 0;
@@ -109,13 +109,13 @@ namespace DiscordTunnel.Services
             long resolved1 = RunCurlProbe(curl, $"-s -m 3 --socks5-hostname 127.0.0.1:1080 --resolve discord.com:443:{edge1} {GatewayUrl}", token);
             if (resolved1 > 0) return resolved1;
 
-            if (token.IsCancellationRequested) return 0;
+            token.ThrowIfCancellationRequested();
 
             string edge2 = FallbackCloudflareEdges[idx2];
             long resolved2 = RunCurlProbe(curl, $"-s -m 3 --socks5-hostname 127.0.0.1:1080 --resolve discord.com:443:{edge2} {GatewayUrl}", token);
             if (resolved2 > 0) return resolved2;
 
-            if (token.IsCancellationRequested) return 0;
+            token.ThrowIfCancellationRequested();
             return RunCurlProbe(curl, $"-s -m 3 --socks5-hostname 127.0.0.1:1080 {GatewayUrl}", token);
         }
 
@@ -142,6 +142,13 @@ namespace DiscordTunnel.Services
 
                 string output = process.StandardOutput.ReadToEnd();
                 process.WaitForExit(3400);
+                try
+                {
+                    if (!process.HasExited) process.Kill();
+                }
+                catch
+                {
+                }
                 timer.Stop();
                 token.ThrowIfCancellationRequested();
                 return IsGatewayPayload(output) ? Math.Max(1, timer.ElapsedMilliseconds) : 0;
