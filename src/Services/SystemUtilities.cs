@@ -58,9 +58,13 @@ namespace DiscordTunnel.Services
             {
                 string versionDllSource = Path.Combine(coreDir, "version.dll");
                 string droverIniSource = Path.Combine(coreDir, "drover.ini");
+                string droverPacketSource = Path.Combine(coreDir, "drover-packet.bin");
                 if (!File.Exists(versionDllSource) || !File.Exists(droverIniSource)) return;
 
                 long sourceDllLength = new FileInfo(versionDllSource).Length;
+                byte[] sourceIniBytes = File.ReadAllBytes(droverIniSource);
+                bool hasPacket = File.Exists(droverPacketSource);
+                long sourcePacketLength = hasPacket ? new FileInfo(droverPacketSource).Length : 0;
                 string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
                 foreach (string flavor in DiscordFlavors)
@@ -74,15 +78,21 @@ namespace DiscordTunnel.Services
                         {
                             string targetDll = Path.Combine(appDir, "version.dll");
                             string targetIni = Path.Combine(appDir, "drover.ini");
+                            string targetPacket = Path.Combine(appDir, "drover-packet.bin");
 
                             if (!File.Exists(targetDll) || new FileInfo(targetDll).Length != sourceDllLength)
                             {
                                 File.Copy(versionDllSource, targetDll, true);
                             }
 
-                            if (!File.Exists(targetIni))
+                            if (!File.Exists(targetIni) || !File.ReadAllBytes(targetIni).AsSpan().SequenceEqual(sourceIniBytes))
                             {
-                                File.Copy(droverIniSource, targetIni, true);
+                                File.WriteAllBytes(targetIni, sourceIniBytes);
+                            }
+
+                            if (hasPacket && (!File.Exists(targetPacket) || new FileInfo(targetPacket).Length != sourcePacketLength))
+                            {
+                                File.Copy(droverPacketSource, targetPacket, true);
                             }
                         }
                         catch { }
@@ -106,6 +116,7 @@ namespace DiscordTunnel.Services
                     foreach (string appDir in Directory.GetDirectories(basePath, "app-*"))
                     {
                         DeleteFileQuietly(Path.Combine(appDir, "drover.ini"));
+                        DeleteFileQuietly(Path.Combine(appDir, "drover-packet.bin"));
                         DeleteFileQuietly(Path.Combine(appDir, "version.dll"));
                     }
                 }
@@ -115,6 +126,9 @@ namespace DiscordTunnel.Services
 
         public static void CleanupLegacyArtifacts()
         {
+            TerminateProcessByName("ciadpi");
+            TerminateProcessByName("DiscordShieldEngine");
+
             try
             {
                 string hostsPath = Path.Combine(Environment.SystemDirectory, @"drivers\etc\hosts");
@@ -195,6 +209,29 @@ namespace DiscordTunnel.Services
             InternetSetOption(IntPtr.Zero, InternetOptionRefresh, IntPtr.Zero, 0);
         }
 
+        public static string BuildPacScript() =>
+            "function FindProxyForURL(url, host) {\n" +
+            "  var h = host.toLowerCase();\n" +
+            "  var domains = [\n" +
+            "    \"discord.com\", \"discord.gg\", \"discordapp.com\", \"discordapp.net\",\n" +
+            "    \"discord.media\", \"discordcdn.com\", \"discord.co\", \"discord.gift\",\n" +
+            "    \"discord.gifts\", \"discord.app\", \"discord.new\", \"discord.design\",\n" +
+            "    \"discord.dev\", \"discord.status\", \"discord.store\", \"discordstatus.com\",\n" +
+            "    \"discord-activities.com\", \"discordactivities.com\", \"discordmerch.com\",\n" +
+            "    \"discordpartygames.com\", \"discordsays.com\", \"discordsez.com\",\n" +
+            "    \"discord.tools\", \"discordvibeapps.com\",\n" +
+            "    \"dis.gd\", \"inv.wtf\", \"cloudflare-ech.com\", \"sentry.io\", \"sentry-cdn.com\",\n" +
+            "    \"discord-attachments-uploads-prd.storage.googleapis.com\"\n" +
+            "  ];\n" +
+            "  for (var i = 0; i < domains.length; i++) {\n" +
+            "    var d = domains[i];\n" +
+            "    if (h === d || dnsDomainIs(h, \".\" + d)) {\n" +
+            "      return \"PROXY 127.0.0.1:1080; SOCKS 127.0.0.1:1080; DIRECT\";\n" +
+            "    }\n" +
+            "  }\n" +
+            "  return \"DIRECT\";\n" +
+            "}\n";
+
         private static void StartPacServer()
         {
             if (_pacListener != null) return;
@@ -208,23 +245,7 @@ namespace DiscordTunnel.Services
                 _pacListener.Prefixes.Add(PacPrefix);
                 _pacListener.Start();
 
-                byte[] pacBytes = Encoding.UTF8.GetBytes(
-                    "function FindProxyForURL(url, host) {\n" +
-                    "  var h = host.toLowerCase();\n" +
-                    "  var domains = [\n" +
-                    "    \"discord.com\", \"discord.gg\", \"discordapp.com\", \"discordapp.net\",\n" +
-                    "    \"discord.media\", \"discordcdn.com\", \"discord.co\", \"discord.gift\",\n" +
-                    "    \"discord.new\", \"discord.design\", \"discord.dev\", \"discordstatus.com\",\n" +
-                    "    \"dis.gd\", \"inv.wtf\", \"discordsays.com\"\n" +
-                    "  ];\n" +
-                    "  for (var i = 0; i < domains.length; i++) {\n" +
-                    "    var d = domains[i];\n" +
-                    "    if (h === d || dnsDomainIs(h, \".\" + d)) {\n" +
-                    "      return \"SOCKS5 127.0.0.1:1080; SOCKS 127.0.0.1:1080; DIRECT\";\n" +
-                    "    }\n" +
-                    "  }\n" +
-                    "  return \"DIRECT\";\n" +
-                    "}\n");
+                byte[] pacBytes = Encoding.UTF8.GetBytes(BuildPacScript());
 
                 Task.Run(async () =>
                 {

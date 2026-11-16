@@ -17,6 +17,9 @@ public sealed class DiagnosticTracker
     private long _totalConnections;
     private long _dohResolutions;
     private long _edgeFallbacks;
+    private bool _udpDesyncActive;
+    private long _udpDesyncPackets;
+    private int _udpDesyncError;
 
     public void BeginSession(string appVersion, string regionCode, bool isElevated)
     {
@@ -37,6 +40,9 @@ public sealed class DiagnosticTracker
             _totalConnections = 0;
             _dohResolutions = 0;
             _edgeFallbacks = 0;
+            _udpDesyncActive = false;
+            _udpDesyncPackets = 0;
+            _udpDesyncError = 0;
             _steps.Clear();
         }
     }
@@ -50,11 +56,12 @@ public sealed class DiagnosticTracker
         }
     }
 
-    public void RecordStep(string regionCode, string strategyLabel, bool engineEnabled, bool engineAlive, bool proxyAlive, long elapsedMs, bool success, string detail)
+    public void RecordStep(string regionCode, string strategyLabel, bool engineEnabled, bool engineAlive, bool proxyAlive, long elapsedMs, bool success, string detail, string? engineState = null)
     {
         var sanitizedDetail = Sanitize(detail);
         var safeRegion = string.IsNullOrWhiteSpace(regionCode) ? "none" : regionCode.Trim();
         var safeStrategy = string.IsNullOrWhiteSpace(strategyLabel) ? "none" : strategyLabel.Trim();
+        var resolvedEngineState = string.IsNullOrWhiteSpace(engineState) ? (engineAlive ? "alive" : "down") : engineState.Trim();
 
         lock (_syncRoot)
         {
@@ -67,7 +74,7 @@ public sealed class DiagnosticTracker
                 safeRegion,
                 safeStrategy,
                 engineEnabled,
-                engineAlive,
+                resolvedEngineState,
                 proxyAlive,
                 elapsedMs,
                 success,
@@ -85,6 +92,16 @@ public sealed class DiagnosticTracker
         }
     }
 
+    public void SetUdpDesync(bool isActive, long desyncedPackets, int errorCode = 0)
+    {
+        lock (_syncRoot)
+        {
+            _udpDesyncActive = isActive;
+            _udpDesyncPackets = desyncedPackets;
+            _udpDesyncError = isActive ? 0 : errorCode;
+        }
+    }
+
     public string BuildReport()
     {
         lock (_syncRoot)
@@ -99,6 +116,8 @@ public sealed class DiagnosticTracker
             sb.AppendLine($"System DNS: {_systemDnsStatus}");
             sb.AppendLine($"DoH: {_dohStatus}");
             sb.AppendLine($"Relay: connections={_totalConnections}, doh={_dohResolutions}, edge_fallback={_edgeFallbacks}");
+            string udpErrSuffix = !_udpDesyncActive && _udpDesyncError != 0 ? $", err=0x{_udpDesyncError:x8}" : string.Empty;
+            sb.AppendLine($"UDP Desync: {(_udpDesyncActive ? "active" : "inactive")} (packets={_udpDesyncPackets}{udpErrSuffix})");
             sb.AppendLine("Steps:");
 
             if (_steps.Count == 0)
@@ -110,10 +129,9 @@ public sealed class DiagnosticTracker
                 foreach (var step in _steps)
                 {
                     var outcome = step.Success ? "[PASS]" : "[FAIL]";
-                    var engineStatus = step.EngineAlive ? "alive" : "down";
                     var proxyStatus = step.ProxyAlive ? "alive" : "down";
                     var suffix = string.IsNullOrWhiteSpace(step.Detail) ? string.Empty : $" - {step.Detail}";
-                    sb.AppendLine($"  {outcome} {step.RegionCode}/{step.StrategyLabel} engine={engineStatus}(en={step.EngineEnabled}) proxy={proxyStatus} {step.ElapsedMs}ms{suffix}");
+                    sb.AppendLine($"  {outcome} {step.RegionCode}/{step.StrategyLabel} engine={step.EngineState}(en={step.EngineEnabled}) proxy={proxyStatus} {step.ElapsedMs}ms{suffix}");
                 }
             }
 
@@ -155,7 +173,7 @@ public sealed class DiagnosticTracker
         string RegionCode,
         string StrategyLabel,
         bool EngineEnabled,
-        bool EngineAlive,
+        string EngineState,
         bool ProxyAlive,
         long ElapsedMs,
         bool Success,

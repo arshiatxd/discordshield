@@ -34,6 +34,7 @@ namespace DiscordTunnel
         private readonly SocksRelayService _socksRelay;
         private readonly DiagnosticTracker _diagnostics = new();
         private readonly GatewayVerifier _verifier = new();
+        private readonly UdpDesyncService _udpDesync = new();
 
         private bool _isConnected;
         private bool _shutdownComplete;
@@ -43,11 +44,15 @@ namespace DiscordTunnel
         private string? _preCopyStatusText;
         private Process? _tunnelProcess;
         private Process? _proxyProcess;
+        private volatile bool _tunnelLayerBlocked;
         private System.Windows.Forms.NotifyIcon? _trayIcon;
         private string _coreDir = string.Empty;
         private string _enginePath = string.Empty;
         private string _proxyPath = string.Empty;
         private string _activeProfileName = "Auto-Detect";
+        private string _activeRegionCode = string.Empty;
+        private string _activeStrategyLabel = string.Empty;
+        private string _lastSystemDnsSummary = "pending";
         private CancellationTokenSource? _pingCts;
         private CancellationTokenSource? _connectCts;
 
@@ -153,6 +158,7 @@ namespace DiscordTunnel
             }
 
             StopAllEnginesSync();
+            _udpDesync.Dispose();
             _socksRelay.Dispose();
             _dnsService.Dispose();
             _verifier.Dispose();
@@ -184,7 +190,7 @@ namespace DiscordTunnel
                 string localIcon = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.ico");
                 if (File.Exists(localIcon)) return new System.Drawing.Icon(localIcon, 32, 32);
 
-                var stream = Application.GetResourceStream(new Uri("pack://application:,,,/app.ico"))?.Stream;
+                using var stream = Application.GetResourceStream(new Uri("pack://application:,,,/app.ico"))?.Stream;
                 if (stream != null) return new System.Drawing.Icon(stream, 32, 32);
             }
             catch (Exception ex) when (ex is IOException or ArgumentException or UriFormatException) { }
@@ -329,7 +335,9 @@ namespace DiscordTunnel
         private async void CopyDiagnosticsMenuItem_Click(object sender, RoutedEventArgs e)
         {
             ClosePanel();
+            _diagnostics.SetDnsProbe(_lastSystemDnsSummary, _dnsService.LastDohSummary);
             _diagnostics.SetRelayStats(_socksRelay.TotalConnections, _dnsService.DohResolutionCount, _dnsService.EdgeFallbackCount);
+            _diagnostics.SetUdpDesync(_udpDesync.IsActive, _udpDesync.DesyncedPackets, _udpDesync.LastErrorCode);
             string report = _diagnostics.BuildReport();
 
             bool copied = false;
@@ -430,7 +438,10 @@ namespace DiscordTunnel
 
         private void CancelConnection()
         {
-            try { _connectCts?.Cancel(); }
+            var cts = Volatile.Read(ref _connectCts);
+            if (cts == null) return;
+
+            try { cts.Cancel(); }
             catch (ObjectDisposedException) { }
         }
 
@@ -450,11 +461,19 @@ namespace DiscordTunnel
 
         private async Task StartTunnelAsync()
         {
-            _connectCts?.Dispose();
-            _connectCts = new CancellationTokenSource();
-            var token = _connectCts.Token;
+            var newCts = new CancellationTokenSource();
+            var previousCts = Interlocked.Exchange(ref _connectCts, newCts);
+            if (previousCts != null)
+            {
+                try { previousCts.Cancel(); }
+                catch (ObjectDisposedException) { }
+                previousCts.Dispose();
+            }
+
+            var token = newCts.Token;
             var selected = _regions[_selectedRegionIndex];
             bool isElevated = IsProcessElevated();
+            _lastSystemDnsSummary = "pending";
             _diagnostics.BeginSession(AppVersion, selected.Code, isElevated);
 
             try
@@ -475,16 +494,19 @@ namespace DiscordTunnel
                 }, token);
 
                 var (_, dnsSummary) = await _dnsService.ProbeSystemDnsAsync("discord.com", token);
-                _diagnostics.SetDnsProbe(dnsSummary, "pending");
+                _lastSystemDnsSummary = dnsSummary;
+                _diagnostics.SetDnsProbe(dnsSummary, _dnsService.LastDohSummary);
 
-                _socksRelay.Start();
+                await EnsureRelayListeningAsync(selected.Code, token);
 
                 bool isAuto = selected.Code == RegionCatalog.AutoCode;
                 var steps = await BuildStrategyQueueAsync(selected, token);
                 bool multiStep = steps.Count > 1;
                 string failure = "Discord Gateway unreachable.";
                 long latency = 0;
+                int connectedBackendPort = 0;
                 bool connected = false;
+                bool connectedEngineEnabled = false;
 
                 for (int i = 0; i < steps.Count && !connected; i++)
                 {
@@ -505,13 +527,19 @@ namespace DiscordTunnel
 
                     bool proxyAlive = IsEngineAlive(_proxyProcess);
                     bool engineEnabled = !string.IsNullOrWhiteSpace(strategy.EngineArguments);
-                    bool engineAlive = engineEnabled && IsEngineAlive(_tunnelProcess);
+                    if (_tunnelLayerBlocked)
+                    {
+                        StopProcess(ref _tunnelProcess);
+                    }
+                    bool engineAlive = engineEnabled && !_tunnelLayerBlocked && IsEngineAlive(_tunnelProcess);
+                    string engineState = _tunnelLayerBlocked ? "blocked" : (engineAlive ? "alive" : "down");
 
                     if (!proxyAlive)
                     {
                         stepWatch.Stop();
                         failure = "Proxy process exited";
-                        _diagnostics.RecordStep(region.Code, strategy.Label, engineEnabled, engineAlive, proxyAlive, stepWatch.ElapsedMilliseconds, false, failure);
+                        _diagnostics.RecordStep(region.Code, strategy.Label, engineEnabled, engineAlive, proxyAlive, stepWatch.ElapsedMilliseconds, false, failure, engineState);
+                        _diagnostics.SetDnsProbe(_lastSystemDnsSummary, _dnsService.LastDohSummary);
                         _diagnostics.SetRelayStats(_socksRelay.TotalConnections, _dnsService.DohResolutionCount, _dnsService.EdgeFallbackCount);
                         await Task.Run(StopProcessesAndDriverSync);
                         continue;
@@ -521,14 +549,25 @@ namespace DiscordTunnel
                     var result = await _verifier.VerifyAsync(multiStep ? 1 : 3, token);
                     stepWatch.Stop();
 
-                    _diagnostics.RecordStep(region.Code, strategy.Label, engineEnabled, engineAlive, proxyAlive, stepWatch.ElapsedMilliseconds, result.Success, result.Detail);
-                    _diagnostics.SetDnsProbe(dnsSummary, _dnsService.LastDohSummary);
+                    if (_tunnelLayerBlocked && IsEngineAlive(_tunnelProcess))
+                    {
+                        StopProcess(ref _tunnelProcess);
+                        engineAlive = false;
+                        engineState = "blocked";
+                    }
+
+                    _diagnostics.RecordStep(region.Code, strategy.Label, engineEnabled, engineAlive, proxyAlive, stepWatch.ElapsedMilliseconds, result.Success, result.Detail, engineState);
+                    _diagnostics.SetDnsProbe(_lastSystemDnsSummary, _dnsService.LastDohSummary);
                     _diagnostics.SetRelayStats(_socksRelay.TotalConnections, _dnsService.DohResolutionCount, _dnsService.EdgeFallbackCount);
 
                     if (result.Success)
                     {
                         connected = true;
                         latency = result.LatencyMs;
+                        connectedBackendPort = backendPort;
+                        connectedEngineEnabled = engineEnabled;
+                        _activeRegionCode = region.Code;
+                        _activeStrategyLabel = strategy.Label;
                         _activeProfileName = isAuto ? $"Auto ({region.ShortName})" : $"{region.ShortName} \u2022 {strategy.Label}";
                     }
                     else
@@ -551,11 +590,18 @@ namespace DiscordTunnel
                     AttachEngineExitWatcher(watched);
                     if (IsEngineAlive(_tunnelProcess))
                     {
-                        AttachEngineExitWatcher(_tunnelProcess!);
+                        AttachTunnelDriverExitWatcher(_tunnelProcess!);
                     }
+                    bool udpDesyncStarted = _udpDesync.Start(_coreDir);
+                    _diagnostics.SetUdpDesync(udpDesyncStarted || _udpDesync.IsActive, _udpDesync.DesyncedPackets, _udpDesync.LastErrorCode);
+                    _ = _dnsService.PrewarmAsync(connectedBackendPort, CancellationToken.None);
                     SystemUtilities.DeployDiscordBridge(_coreDir);
                     SystemUtilities.EnableBrowserProxy();
                     SetUiState(true, latency, _activeProfileName);
+                    if (connectedEngineEnabled && !IsEngineAlive(_tunnelProcess))
+                    {
+                        SetPill(true, $"{_activeProfileName}  \u2022  Proxy mode (driver busy)");
+                    }
                     StartBackgroundPing();
                 }
                 else
@@ -570,12 +616,14 @@ namespace DiscordTunnel
             }
             catch (OperationCanceledException)
             {
+                _diagnostics.SetDnsProbe(_lastSystemDnsSummary, _dnsService.LastDohSummary);
                 _diagnostics.SetRelayStats(_socksRelay.TotalConnections, _dnsService.DohResolutionCount, _dnsService.EdgeFallbackCount);
                 await StopTunnelAsync("Connection cancelled");
             }
             catch (Exception ex) when (ex is InvalidOperationException or Win32Exception or IOException or SocketException)
             {
                 _diagnostics.RecordStep(selected.Code, "init", false, false, false, 0, false, ex.Message);
+                _diagnostics.SetDnsProbe(_lastSystemDnsSummary, _dnsService.LastDohSummary);
                 _diagnostics.SetRelayStats(_socksRelay.TotalConnections, _dnsService.DohResolutionCount, _dnsService.EdgeFallbackCount);
                 await Task.Run(() =>
                 {
@@ -586,8 +634,42 @@ namespace DiscordTunnel
             }
             finally
             {
+                Interlocked.CompareExchange(ref _connectCts, null, newCts);
+                newCts.Dispose();
+                CancelBtn.IsEnabled = true;
                 ShowCancel(false);
                 ConnectBtn.IsEnabled = true;
+            }
+        }
+
+        private async Task EnsureRelayListeningAsync(string regionCode, CancellationToken token)
+        {
+            try
+            {
+                _socksRelay.Start();
+            }
+            catch (InvalidOperationException)
+            {
+            }
+
+            if (_socksRelay.IsListening) return;
+
+            await Task.Delay(150, token);
+            try
+            {
+                _socksRelay.Start();
+            }
+            catch (InvalidOperationException ex)
+            {
+                _diagnostics.RecordStep(regionCode, "relay", false, false, false, 0, false, ex.Message);
+                throw;
+            }
+
+            if (!_socksRelay.IsListening)
+            {
+                const string message = "Local SOCKS5 relay failed to listen on port 1080.";
+                _diagnostics.RecordStep(regionCode, "relay", false, false, false, 0, false, message);
+                throw new InvalidOperationException(message);
             }
         }
 
@@ -621,6 +703,7 @@ namespace DiscordTunnel
         {
             _proxyProcess = null;
             _tunnelProcess = null;
+            _tunnelLayerBlocked = false;
 
             if (File.Exists(_proxyPath))
             {
@@ -630,18 +713,43 @@ namespace DiscordTunnel
 
             if (!string.IsNullOrWhiteSpace(strategy.EngineArguments) && File.Exists(_enginePath))
             {
-                try { _tunnelProcess = Process.Start(CreateHiddenStartInfo(_enginePath, strategy.EngineArguments)); }
+                try
+                {
+                    var tunnel = Process.Start(CreateHiddenStartInfo(_enginePath, strategy.EngineArguments, redirectOutput: true));
+                    if (tunnel != null)
+                    {
+                        tunnel.OutputDataReceived += OnTunnelOutputReceived;
+                        tunnel.ErrorDataReceived += OnTunnelOutputReceived;
+                        tunnel.BeginOutputReadLine();
+                        tunnel.BeginErrorReadLine();
+                    }
+                    _tunnelProcess = tunnel;
+                }
                 catch (Exception ex) when (ex is InvalidOperationException or Win32Exception) { }
             }
         }
 
-        private ProcessStartInfo CreateHiddenStartInfo(string fileName, string arguments) => new()
+        private void OnTunnelOutputReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(e.Data)) return;
+
+            if (e.Data.Contains("Error opening filter", StringComparison.OrdinalIgnoreCase)
+                || e.Data.Contains("FWP_E_IN_USE", StringComparison.OrdinalIgnoreCase)
+                || e.Data.Contains("Access is denied", StringComparison.OrdinalIgnoreCase))
+            {
+                _tunnelLayerBlocked = true;
+            }
+        }
+
+        private ProcessStartInfo CreateHiddenStartInfo(string fileName, string arguments, bool redirectOutput = false) => new()
         {
             FileName = fileName,
             Arguments = arguments,
             WorkingDirectory = _coreDir,
             CreateNoWindow = true,
             UseShellExecute = false,
+            RedirectStandardOutput = redirectOutput,
+            RedirectStandardError = redirectOutput,
             WindowStyle = ProcessWindowStyle.Hidden
         };
 
@@ -658,7 +766,7 @@ namespace DiscordTunnel
                 process.EnableRaisingEvents = true;
                 process.Exited += (sender, _) => Dispatcher.BeginInvoke(async () =>
                 {
-                    if (_isConnected && (ReferenceEquals(sender, _proxyProcess) || ReferenceEquals(sender, _tunnelProcess)))
+                    if (_isConnected && ReferenceEquals(Volatile.Read(ref _proxyProcess), sender))
                     {
                         await StopTunnelAsync();
                         SetUiFailedState("Tunnel engine terminated unexpectedly.");
@@ -668,12 +776,45 @@ namespace DiscordTunnel
             catch (InvalidOperationException) { }
         }
 
+        private void AttachTunnelDriverExitWatcher(Process process)
+        {
+            try
+            {
+                process.EnableRaisingEvents = true;
+                process.Exited += (sender, _) => Dispatcher.BeginInvoke(() =>
+                {
+                    if (_isConnected && ReferenceEquals(Volatile.Read(ref _tunnelProcess), sender))
+                    {
+                        var exited = Interlocked.CompareExchange(ref _tunnelProcess, null, process);
+                        exited?.Dispose();
+                        _diagnostics.RecordStep(
+                            _activeRegionCode,
+                            _activeStrategyLabel,
+                            true,
+                            false,
+                            IsEngineAlive(_proxyProcess),
+                            0,
+                            true,
+                            "Kernel driver stopped; proxy active",
+                            _tunnelLayerBlocked ? "blocked" : "down");
+                        SetPill(true, $"{_activeProfileName}  \u2022  Proxy mode (driver busy)");
+                    }
+                });
+            }
+            catch (InvalidOperationException) { }
+        }
+
         private void StartBackgroundPing()
         {
-            _pingCts?.Cancel();
-            _pingCts?.Dispose();
-            _pingCts = new CancellationTokenSource();
-            var token = _pingCts.Token;
+            var cts = new CancellationTokenSource();
+            var previous = Interlocked.Exchange(ref _pingCts, cts);
+            if (previous != null)
+            {
+                try { previous.Cancel(); }
+                catch (ObjectDisposedException) { }
+            }
+
+            var token = cts.Token;
 
             Task.Run(async () =>
             {
@@ -684,7 +825,10 @@ namespace DiscordTunnel
                         await Task.Delay(15000, token).ConfigureAwait(false);
                         if (!_isConnected) continue;
 
+                        SystemUtilities.DeployDiscordBridge(_coreDir);
                         long latency = await _verifier.PingAsync(token).ConfigureAwait(false);
+                        _diagnostics.SetRelayStats(_socksRelay.TotalConnections, _dnsService.DohResolutionCount, _dnsService.EdgeFallbackCount);
+                        _diagnostics.SetUdpDesync(_udpDesync.IsActive, _udpDesync.DesyncedPackets, _udpDesync.LastErrorCode);
                         if (latency <= 0) continue;
 
                         _ = Dispatcher.BeginInvoke(() =>
@@ -697,12 +841,20 @@ namespace DiscordTunnel
                 }
                 catch (OperationCanceledException) { }
                 catch (ObjectDisposedException) { }
-            }, token);
+                finally
+                {
+                    Interlocked.CompareExchange(ref _pingCts, null, cts);
+                    cts.Dispose();
+                }
+            }, CancellationToken.None);
         }
 
         private void StopBackgroundPing()
         {
-            try { _pingCts?.Cancel(); }
+            var cts = Volatile.Read(ref _pingCts);
+            if (cts == null) return;
+
+            try { cts.Cancel(); }
             catch (ObjectDisposedException) { }
         }
 
@@ -730,6 +882,7 @@ namespace DiscordTunnel
 
         private void StopProcessesAndDriverSync()
         {
+            _udpDesync.Stop();
             StopProcess(ref _proxyProcess);
             StopProcess(ref _tunnelProcess);
 

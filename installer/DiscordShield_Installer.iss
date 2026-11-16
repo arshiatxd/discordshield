@@ -72,6 +72,7 @@ Source: "{#SourceDir}\Core\discord-list.txt"; DestDir: "{app}\Core"; Flags: igno
 Source: "{#SourceDir}\Core\ciadpi.exe"; DestDir: "{app}\Core"; Flags: ignoreversion
 Source: "{#SourceDir}\Core\version.dll"; DestDir: "{app}\Core"; Flags: ignoreversion
 Source: "{#SourceDir}\Core\drover.ini"; DestDir: "{app}\Core"; Flags: ignoreversion
+Source: "{#SourceDir}\Core\drover-packet.bin"; DestDir: "{app}\Core"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"

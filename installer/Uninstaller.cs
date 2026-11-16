@@ -192,14 +192,19 @@ internal static class Program
         try
         {
             string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            foreach (string flavor in new string[] { "Discord", "DiscordPTB", "DiscordCanary" })
+            foreach (string flavor in new string[] { "Discord", "DiscordPTB", "DiscordCanary", "DiscordDevelopment" })
             {
                 string basePath = Path.Combine(localAppData, flavor);
                 if (!Directory.Exists(basePath)) continue;
 
+                TryDeleteFile(Path.Combine(basePath, "drover.ini"));
+                TryDeleteFile(Path.Combine(basePath, "drover-packet.bin"));
+                TryDeleteFile(Path.Combine(basePath, "version.dll"));
+
                 foreach (string appDir in Directory.GetDirectories(basePath, "app-*"))
                 {
                     TryDeleteFile(Path.Combine(appDir, "drover.ini"));
+                    TryDeleteFile(Path.Combine(appDir, "drover-packet.bin"));
                     TryDeleteFile(Path.Combine(appDir, "version.dll"));
                 }
             }
