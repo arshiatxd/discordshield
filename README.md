@@ -45,7 +45,7 @@ On first launch, **Auto-Detect** inspects Windows regional settings and network 
   - Asiatech
   - Zitel
   - Pars Online
-  - Rightel
+  - Rightel(-)
   - Sabanet
   - Pishgaman
   - Hi-Web
